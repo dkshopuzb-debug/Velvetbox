@@ -1,0 +1,2789 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>VelvetBox</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --accent: #ff9000;
+    --accent2: #ffb347;
+    --gold: #ff9000;
+    --bg: #000000;
+    --surface: #111111;
+    --text: #ffffff;
+    --hint: #888888;
+    --card: #1a1a1a;
+    --border: #2a2a2a;
+    --green: #4caf50;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─────────── SHOP (mijoz) ─────────── */
+  #shop-wrap { padding-bottom: 80px; }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(0,0,0,.97);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo { font-family:'DM Sans',sans-serif; font-size:1.4rem; font-weight:700; letter-spacing:.02em; color:#fff; text-transform:uppercase; }
+  .logo span { background:var(--accent); color:#000; padding:0 .3rem; border-radius:3px; font-weight:900; margin-left:1px; }
+  .cart-icon {
+    position:relative; background:var(--accent); border:none; color:#000;
+    width:40px; height:40px; border-radius:4px; font-size:1.1rem; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; font-weight:700;
+  }
+  .cart-num {
+    position:absolute; top:-4px; right:-4px; background:#fff; color:#000;
+    font-size:.6rem; font-weight:900; width:16px; height:16px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  .page { display:none; animation:slideUp .25s ease; }
+  .page.active { display:block; }
+  @keyframes slideUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+  .hero {
+    padding:2rem 1rem 1.5rem; text-align:center;
+    background:linear-gradient(180deg,#111 0%,#000 100%);
+    position:relative; overflow:hidden;
+  }
+  .hero::before {
+    content:''; position:absolute; inset:0;
+    background:radial-gradient(ellipse 80% 60% at 50% 30%,rgba(255,144,0,.12) 0%,transparent 70%);
+  }
+  .hero-inner { position:relative; }
+  .age-badge {
+    display:inline-block; background:var(--accent); color:#000;
+    font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; padding:.3rem .8rem; margin-bottom:1rem; font-weight:700; border-radius:3px;
+  }
+  .hero h1 { font-family:'DM Sans',sans-serif; font-size:2rem; font-weight:900; line-height:1.1; margin-bottom:.8rem; text-transform:uppercase; letter-spacing:-.01em; }
+  .hero h1 em { font-style:normal; color:var(--accent); }
+  .hero p { color:var(--hint); font-size:.82rem; line-height:1.6; max-width:280px; margin:0 auto 1.5rem; }
+
+  .search-bar { margin:1rem; display:flex; background:var(--card); border:1px solid var(--border); overflow:hidden; }
+  .search-bar input { flex:1; background:transparent; border:none; color:var(--text); padding:.7rem 1rem; font-family:'DM Sans',sans-serif; font-size:.85rem; outline:none; }
+  .search-bar input::placeholder { color:var(--hint); }
+  .search-bar button { background:var(--accent); border:none; color:#fff; padding:0 1rem; cursor:pointer; font-size:1rem; }
+
+  .chips { display:flex; gap:.5rem; padding:.5rem 1rem 1rem; overflow-x:auto; scrollbar-width:none; }
+  .chips::-webkit-scrollbar { display:none; }
+  .chip { flex-shrink:0; background:var(--card); border:1px solid var(--border); color:var(--hint); padding:.4rem .9rem; font-size:.75rem; letter-spacing:.04em; cursor:pointer; transition:all .2s; white-space:nowrap; border-radius:20px; font-weight:500; }
+  .chip.active,.chip:active { background:var(--accent); border-color:var(--accent); color:#000; font-weight:700; }
+
+  .prod-list { padding:0 1rem; }
+  .prod-card { display:flex; background:var(--card); border:1px solid var(--border); margin-bottom:.75rem; overflow:hidden; cursor:pointer; transition:border-color .2s; position:relative; border-radius:4px; }
+  .prod-card:active { border-color:var(--accent); }
+  .prod-thumb { width:90px; min-height:90px; background:var(--surface); display:flex; align-items:center; justify-content:center; font-size:2.2rem; flex-shrink:0; }
+  .prod-body { padding:.8rem; flex:1; }
+  .prod-badge { display:inline-block; background:var(--accent); color:#000; font-size:.6rem; letter-spacing:.08em; text-transform:uppercase; padding:.15rem .5rem; margin-bottom:.35rem; font-weight:700; border-radius:2px; }
+  .prod-name { font-size:.88rem; font-weight:500; margin-bottom:.25rem; line-height:1.3; }
+  .prod-desc { font-size:.75rem; color:var(--hint); margin-bottom:.5rem; line-height:1.4; }
+  .prod-foot { display:flex; align-items:center; justify-content:space-between; }
+  .prod-price { font-family:'DM Sans',sans-serif; font-size:1.05rem; font-weight:700; color:var(--accent); }
+  .add-btn { background:var(--accent); border:none; color:#000; padding:.35rem .8rem; font-size:.72rem; letter-spacing:.04em; cursor:pointer; transition:all .18s; font-weight:700; border-radius:3px; }
+  .add-btn:active { background:#e07800; }
+
+  .sec-title { font-family:'DM Sans',sans-serif; font-size:1.1rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding:1rem 1rem .5rem; color:var(--text); }
+  .sec-title em { font-style:normal; color:var(--accent); }
+
+  .cart-empty { text-align:center; padding:4rem 2rem; color:var(--hint); }
+  .cart-empty .big { font-size:3rem; margin-bottom:1rem; }
+  .cart-item { display:flex; align-items:center; gap:.8rem; background:var(--card); border:1px solid var(--border); margin:0 1rem .6rem; padding:.8rem; }
+  .cart-item-emoji { font-size:1.8rem; }
+  .cart-item-info { flex:1; }
+  .cart-item-name { font-size:.85rem; font-weight:500; margin-bottom:.2rem; }
+  .cart-item-price { font-size:.8rem; color:var(--accent2); }
+  .cart-item-qty { display:flex; align-items:center; gap:.5rem; }
+  .qty-btn { background:var(--border); border:none; color:var(--text); width:26px; height:26px; font-size:1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .qty-num { font-size:.85rem; min-width:20px; text-align:center; }
+
+  .cart-total { margin:1rem; padding:1rem; background:var(--card); border:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  .cart-total-label { color:var(--hint); font-size:.8rem; text-transform:uppercase; letter-spacing:.1em; }
+  .cart-total-sum { font-family:'DM Sans',sans-serif; font-size:1.4rem; color:var(--accent); font-weight:700; }
+  .checkout-btn { display:block; width:calc(100% - 2rem); margin:0 1rem 1rem; background:var(--accent); color:#000; border:none; padding:1rem; font-family:'DM Sans',sans-serif; font-size:.95rem; font-weight:900; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; border-radius:4px; }
+
+  .profile-section { margin:1rem; background:var(--card); border:1px solid var(--border); padding:1.2rem; }
+  .profile-section h3 { font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); margin-bottom:1rem; }
+  .profile-row { display:flex; align-items:center; justify-content:space-between; padding:.6rem 0; border-bottom:1px solid var(--border); font-size:.85rem; cursor:pointer; }
+  .profile-row:last-child { border-bottom:none; }
+  .profile-row span:last-child { color:var(--hint); font-size:.8rem; }
+
+  .bottom-nav { position:fixed; bottom:0; left:0; right:0; background:rgba(0,0,0,.98); backdrop-filter:blur(12px); border-top:2px solid var(--accent); display:flex; z-index:50; }
+  .nav-item { flex:1; display:flex; flex-direction:column; align-items:center; padding:.7rem .5rem .5rem; cursor:pointer; transition:color .2s; color:var(--hint); font-size:.65rem; letter-spacing:.06em; text-transform:uppercase; gap:.2rem; border:none; background:transparent; }
+  .nav-item .nav-icon { font-size:1.3rem; }
+  .nav-item.active { color:var(--accent); }
+
+  .promo-banner { margin:0 1rem 1rem; background:linear-gradient(135deg,#111,#1a1a1a); border:1px solid var(--accent); padding:1rem; display:flex; align-items:center; gap:.8rem; border-radius:4px; }
+  .promo-banner .promo-icon { font-size:1.8rem; }
+  .promo-banner h4 { font-size:.85rem; margin-bottom:.2rem; color:var(--accent); font-weight:700; }
+  .promo-banner p { font-size:.75rem; color:var(--hint); }
+
+  /* ─────────── ADMIN ─────────── */
+  #admin-wrap {
+    display: none;
+    min-height: 100vh;
+  }
+
+  /* Admin login screen */
+  #admin-login {
+    display: none;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 2rem;
+    text-align: center;
+  }
+  #admin-login.show { display: flex; }
+  #admin-login h2 { font-family:'DM Sans',sans-serif; font-size:1.5rem; font-weight:900; margin-bottom:.5rem; text-transform:uppercase; }
+  #admin-login p { color:var(--hint); font-size:.82rem; margin-bottom:1.5rem; }
+  .pin-input {
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--text); padding: .8rem 1.2rem;
+    font-size: 1.2rem; letter-spacing: .3em;
+    text-align: center; width: 200px; outline: none;
+    font-family: 'DM Sans', sans-serif;
+    margin-bottom: .8rem;
+  }
+  .pin-input:focus { border-color: var(--accent); }
+  .pin-btn {
+    background: var(--accent); color: #fff; border: none;
+    padding: .7rem 2rem; font-family:'DM Sans',sans-serif;
+    font-size: .85rem; letter-spacing: .1em; text-transform: uppercase;
+    cursor: pointer; width: 200px;
+  }
+  .pin-error { color: var(--accent); font-size: .78rem; margin-top: .5rem; min-height: 1rem; }
+
+  /* Admin sidebar layout */
+  #admin-panel {
+    display: none;
+    min-height: 100vh;
+  }
+  #admin-panel.show { display: flex; }
+
+  .adm-sidebar {
+    width: 210px; background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    position: fixed; top:0; left:0; bottom:0; z-index:100;
+  }
+  .adm-sidebar-logo { padding:1.2rem 1rem; border-bottom:1px solid var(--border); }
+  .adm-sidebar-logo .logo-text { font-family:'DM Sans',sans-serif; font-size:1.2rem; font-weight:900; letter-spacing:.02em; color:#fff; text-transform:uppercase; }
+  .adm-sidebar-logo .logo-text span { background:var(--accent); color:#000; padding:0 .25rem; border-radius:2px; }
+  .adm-sidebar-logo .logo-sub { font-size:.6rem; letter-spacing:.16em; text-transform:uppercase; color:var(--hint); margin-top:.15rem; }
+
+  .adm-nav { flex:1; padding:.8rem 0; overflow-y:auto; }
+  .adm-nav-group { font-size:.58rem; letter-spacing:.18em; text-transform:uppercase; color:var(--hint); padding:.7rem 1rem .25rem; }
+  .adm-link { display:flex; align-items:center; gap:.6rem; padding:.6rem 1rem; cursor:pointer; transition:all .15s; color:var(--hint); font-size:.8rem; border-left:2px solid transparent; user-select:none; }
+  .adm-link:hover { color:var(--text); background:rgba(201,85,106,.06); }
+  .adm-link.active { color:var(--accent); border-left-color:var(--accent); background:rgba(201,85,106,.1); }
+  .adm-link .ni { font-size:.95rem; width:16px; text-align:center; }
+
+  .adm-sidebar-foot { padding:.8rem 1rem; border-top:1px solid var(--border); }
+  .adm-exit-btn { display:flex; align-items:center; gap:.5rem; color:var(--hint); font-size:.78rem; cursor:pointer; background:none; border:none; width:100%; padding:0; }
+  .adm-exit-btn:hover { color:var(--accent); }
+
+  .adm-main { margin-left:210px; flex:1; min-height:100vh; display:flex; flex-direction:column; }
+  .adm-topbar { position:sticky; top:0; z-index:50; background:rgba(10,6,8,.96); backdrop-filter:blur(12px); border-bottom:1px solid var(--border); padding:.8rem 1.3rem; display:flex; align-items:center; justify-content:space-between; }
+  .adm-page-title { font-family:'DM Sans',sans-serif; font-size:1.1rem; font-weight:700; text-transform:uppercase; }
+  .adm-page-title em { font-style:normal; color:var(--accent); }
+
+  .adm-page { display:none; padding:1.2rem; animation:slideUp .2s ease; }
+  .adm-page.active { display:block; }
+
+  /* Stats */
+  .adm-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:.8rem; margin-bottom:1.2rem; }
+  .adm-stat { background:var(--card); border:1px solid var(--border); padding:1rem; position:relative; overflow:hidden; }
+  .adm-stat::after { content:''; position:absolute; bottom:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--accent),transparent); }
+  .adm-stat.gold::after { background:linear-gradient(90deg,#e8a800,transparent); }
+  .adm-stat.green::after { background:linear-gradient(90deg,var(--green),transparent); }
+  .adm-stat-label { font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color:var(--hint); margin-bottom:.4rem; }
+  .adm-stat-val { font-family:'Cormorant Garamond',serif; font-size:1.7rem; font-weight:600; line-height:1; margin-bottom:.2rem; }
+  .adm-stat-sub { font-size:.7rem; color:var(--green); }
+  .adm-stat-icon { position:absolute; top:.8rem; right:.8rem; font-size:1.4rem; opacity:.35; }
+
+  /* Tables */
+  .adm-table-wrap { background:var(--card); border:1px solid var(--border); overflow:hidden; margin-bottom:1.2rem; }
+  .adm-table-head { display:flex; align-items:center; justify-content:space-between; padding:.9rem 1.1rem; border-bottom:1px solid var(--border); }
+  .adm-table-title { font-family:'DM Sans',sans-serif; font-size:.95rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
+  .adm-table-title em { font-style:normal; color:var(--accent); }
+  table { width:100%; border-collapse:collapse; }
+  th { text-align:left; padding:.6rem 1.1rem; font-size:.6rem; letter-spacing:.12em; text-transform:uppercase; color:var(--hint); border-bottom:1px solid var(--border); font-weight:400; }
+  td { padding:.7rem 1.1rem; font-size:.8rem; border-bottom:1px solid rgba(42,31,37,.5); }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:rgba(201,85,106,.04); }
+
+  /* Badges & Status */
+  .badge { display:inline-block; padding:.16rem .5rem; font-size:.6rem; letter-spacing:.07em; text-transform:uppercase; }
+  .badge-new { background:rgba(201,85,106,.18); color:var(--accent); border:1px solid rgba(201,85,106,.4); }
+  .badge-top { background:rgba(200,169,110,.15); color:var(--gold); border:1px solid rgba(200,169,110,.35); }
+  .badge-sale { background:rgba(92,186,138,.15); color:var(--green); border:1px solid rgba(92,186,138,.35); }
+
+  .sdot { display:inline-flex; align-items:center; gap:.35rem; font-size:.76rem; }
+  .sdot::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--hint); flex-shrink:0; }
+  .sdot.pending::before { background:#aaa; }
+  .sdot.processing::before { background:#e8a800; }
+  .sdot.confirmed::before { background:#5c9cba; }
+  .sdot.shipping::before { background:var(--accent); }
+  .sdot.delivered::before { background:var(--green); }
+  .sdot.cancelled::before { background:#c9556a; }
+
+  /* Buttons */
+  .btn { border:none; padding:.4rem .85rem; font-family:'DM Sans',sans-serif; font-size:.74rem; letter-spacing:.07em; cursor:pointer; transition:all .16s; display:inline-flex; align-items:center; gap:.35rem; }
+  .btn-primary { background:var(--accent); color:#000; font-weight:700; }
+  .btn-primary:hover { background:#e07800; }
+  .btn-ghost { background:transparent; border:1px solid var(--border); color:var(--hint); }
+  .btn-ghost:hover { border-color:var(--accent); color:var(--accent); }
+  .btn-danger { background:transparent; border:1px solid var(--border); color:var(--hint); }
+  .btn-danger:hover { border-color:var(--accent); color:var(--accent); }
+  .btn-gold { background:transparent; border:1px solid var(--gold); color:var(--gold); }
+  .btn-sm { padding:.28rem .6rem; font-size:.68rem; }
+
+  /* Search row */
+  .adm-search-row { display:flex; gap:.7rem; margin-bottom:1rem; align-items:center; }
+  .adm-search-wrap { display:flex; background:var(--card); border:1px solid var(--border); flex:1; }
+  .adm-search-wrap input { flex:1; background:transparent; border:none; color:var(--text); padding:.52rem .85rem; font-family:'DM Sans',sans-serif; font-size:.82rem; outline:none; }
+  .adm-search-wrap input::placeholder { color:var(--hint); }
+  .adm-search-wrap span { padding:0 .75rem; display:flex; align-items:center; color:var(--hint); font-size:.88rem; }
+
+  /* Form */
+  .form-group { margin-bottom:.9rem; }
+  .form-label { display:block; font-size:.62rem; letter-spacing:.13em; text-transform:uppercase; color:var(--hint); margin-bottom:.35rem; }
+  .form-input,.form-select,.form-textarea { width:100%; background:var(--surface); border:1px solid var(--border); color:var(--text); padding:.6rem .85rem; font-family:'DM Sans',sans-serif; font-size:.83rem; outline:none; transition:border-color .16s; }
+  .form-input:focus,.form-select:focus,.form-textarea:focus { border-color:var(--accent); }
+  .form-input::placeholder { color:var(--hint); }
+  .form-textarea { resize:vertical; min-height:70px; }
+  .form-select option { background:var(--card); }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:.7rem; }
+
+  /* Modal */
+  .modal-overlay { display:none; position:fixed; inset:0; z-index:200; background:rgba(0,0,0,.72); backdrop-filter:blur(4px); align-items:center; justify-content:center; }
+  .modal-overlay.open { display:flex; }
+  .modal { background:var(--card); border:1px solid var(--border); width:100%; max-width:460px; max-height:90vh; overflow-y:auto; animation:slideUp .2s ease; }
+  .modal-head { padding:1.1rem 1.3rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  .modal-title { font-family:'DM Sans',sans-serif; font-size:1rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
+  .modal-close { background:none; border:none; color:var(--hint); font-size:1.2rem; cursor:pointer; padding:.2rem .4rem; }
+  .modal-close:hover { color:var(--text); }
+  .modal-body { padding:1.3rem; }
+  .modal-foot { padding:.9rem 1.3rem; border-top:1px solid var(--border); display:flex; gap:.5rem; justify-content:flex-end; }
+
+  /* Dashboard grid */
+  .adm-two-col { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; margin-bottom:1.2rem; }
+
+  /* Weekly chart */
+  .week-chart-bars { display:flex; gap:5px; align-items:flex-end; height:70px; }
+  .wcb { flex:1; background:var(--accent); opacity:.35; border-radius:2px 2px 0 0; min-height:4px; transition:opacity .2s; cursor:pointer; }
+  .wcb:hover,.wcb.today { opacity:.85; }
+  .week-labels { display:flex; gap:5px; margin-top:.35rem; }
+  .wlb { flex:1; text-align:center; font-size:.58rem; color:var(--hint); }
+
+  /* Prod emoji box */
+  .pebox { width:44px; height:44px; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:1.4rem; }
+
+  /* Toast */
+  .toast { position:fixed; top:70px; left:50%; transform:translateX(-50%) translateY(-20px); background:var(--card); border:1px solid var(--accent); color:var(--text); padding:.6rem 1.2rem; font-size:.8rem; opacity:0; transition:all .25s; z-index:300; white-space:nowrap; pointer-events:none; }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* ── Mahsulot rasmi ── */
+  .prod-thumb img { width:90px; height:90px; object-fit:cover; display:block; }
+  .prod-img-upload { width:100%; height:110px; background:var(--surface); border:2px dashed var(--border); display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; color:var(--hint); font-size:.78rem; gap:.4rem; transition:border-color .2s; }
+  .prod-img-upload:hover { border-color:var(--accent); }
+  .prod-img-upload .ui-icon { font-size:1.6rem; }
+  .prod-img-preview { position:relative; width:100%; height:110px; }
+  .prod-img-preview img { width:100%; height:110px; object-fit:cover; display:block; }
+  .prod-img-remove { position:absolute; top:.3rem; right:.3rem; background:rgba(0,0,0,.7); border:none; color:#fff; width:22px; height:22px; border-radius:50%; cursor:pointer; font-size:.75rem; display:flex; align-items:center; justify-content:center; }
+
+  /* ── Reyting yulduzlari ── */
+  .stars { display:flex; gap:2px; }
+  .star { font-size:.9rem; color:var(--border); cursor:pointer; transition:color .15s; }
+  .star.filled { color:var(--gold); }
+  .rating-summary { display:flex; align-items:center; gap:.4rem; margin:.3rem 0 .5rem; }
+  .rating-avg { font-family:'Cormorant Garamond',serif; font-size:1rem; color:var(--gold); }
+  .rating-count { font-size:.7rem; color:var(--hint); }
+  .review-card { background:var(--surface); border:1px solid var(--border); padding:.7rem .9rem; margin-bottom:.5rem; }
+  .review-author { font-size:.75rem; font-weight:500; margin-bottom:.2rem; }
+  .review-text { font-size:.78rem; color:var(--hint); line-height:1.5; }
+  .review-date { font-size:.66rem; color:var(--border); margin-top:.25rem; }
+
+  /* ── Mahsulot detail modal ── */
+  .prod-detail-img { width:100%; height:200px; object-fit:cover; display:block; }
+  .prod-detail-emoji-bg { width:100%; height:200px; background:var(--surface); display:flex; align-items:center; justify-content:center; font-size:5rem; }
+  .prod-detail-body { padding:1rem; }
+  .prod-detail-name { font-family:'DM Sans',sans-serif; font-size:1.3rem; font-weight:800; margin-bottom:.3rem; text-transform:uppercase; }
+  .prod-detail-desc { color:var(--hint); font-size:.83rem; line-height:1.6; margin-bottom:.8rem; }
+  .review-input-area { padding:1rem; border-top:1px solid var(--border); }
+  .review-input-area h4 { font-size:.7rem; letter-spacing:.12em; text-transform:uppercase; color:var(--hint); margin-bottom:.6rem; }
+  .star-input { display:flex; gap:.3rem; margin-bottom:.6rem; }
+  .star-input .star { font-size:1.4rem; }
+
+  /* ── Yetkazib berish ── */
+  .delivery-zone { background:var(--card); border:1px solid var(--border); padding:.8rem 1rem; margin-bottom:.5rem; display:flex; align-items:center; justify-content:space-between; cursor:pointer; transition:border-color .2s; }
+  .delivery-zone.selected { border-color:var(--accent); }
+  .delivery-zone-name { font-size:.85rem; font-weight:500; }
+  .delivery-zone-price { font-family:'Cormorant Garamond',serif; font-size:1rem; color:var(--accent2); }
+  .delivery-zone-time { font-size:.72rem; color:var(--hint); }
+  .address-input { width:100%; background:var(--card); border:1px solid var(--border); color:var(--text); padding:.7rem 1rem; font-family:'DM Sans',sans-serif; font-size:.85rem; outline:none; margin-top:.6rem; resize:none; min-height:70px; }
+  .address-input:focus { border-color:var(--accent); }
+
+  /* ── Bot token sozlamasi ── */
+  .bot-status { display:inline-flex; align-items:center; gap:.4rem; font-size:.75rem; padding:.3rem .7rem; border:1px solid var(--border); margin-top:.5rem; }
+  .bot-status.ok { border-color:var(--green); color:var(--green); }
+  .bot-status.err { border-color:var(--accent); color:var(--accent); }
+
+  ::-webkit-scrollbar { width:3px; height:3px; }
+  ::-webkit-scrollbar-track { background:var(--bg); }
+  ::-webkit-scrollbar-thumb { background:var(--border); }
+
+  /* ── Mobile admin (telefon) ── */
+  .adm-bottom-nav {
+    display: none;
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: rgba(10,6,8,.97);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border);
+    z-index: 100;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .adm-bottom-nav::-webkit-scrollbar { display:none; }
+  .adm-bottom-nav-inner {
+    display: flex;
+    min-width: max-content;
+  }
+  .adm-bnav-item {
+    display: flex; flex-direction: column; align-items: center;
+    padding: .55rem .9rem .45rem;
+    cursor: pointer; color: var(--hint);
+    font-size: .58rem; letter-spacing: .05em; text-transform: uppercase;
+    gap: .18rem; border: none; background: transparent;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .adm-bnav-item .ni { font-size: 1.2rem; }
+  .adm-bnav-item.active { color: var(--accent); }
+
+  @media(max-width:640px) {
+    .adm-sidebar { display: none !important; }
+    .adm-main { margin-left: 0 !important; padding-bottom: 65px; }
+    .adm-bottom-nav { display: block; }
+    .adm-stats { grid-template-columns: 1fr 1fr; }
+    .adm-two-col { grid-template-columns: 1fr; }
+    .adm-page { padding: .8rem; }
+    .adm-topbar { padding: .7rem 1rem; }
+    .adm-page-title { font-size: 1rem; }
+    .form-row { grid-template-columns: 1fr; }
+    table { font-size: .72rem; }
+    th, td { padding: .5rem .6rem; }
+    .modal { margin: .5rem; width: calc(100% - 1rem); }
+  }
+
+  @media(min-width:641px) {
+    .adm-bottom-nav { display: none !important; }
+  }
+
+  /* ── To'lov usuli ── */
+  .payment-methods { display:flex; flex-direction:column; gap:.5rem; margin-bottom:.8rem; }
+  .payment-opt { display:flex; align-items:center; gap:.8rem; background:var(--card); border:1px solid var(--border); padding:.75rem 1rem; cursor:pointer; transition:border-color .2s; }
+  .payment-opt.selected { border-color:var(--accent); }
+  .payment-opt-icon { font-size:1.4rem; }
+  .payment-opt-label { flex:1; font-size:.85rem; font-weight:500; }
+  .payment-opt-check { width:18px; height:18px; border:2px solid var(--border); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.65rem; color:#fff; }
+  .payment-opt.selected .payment-opt-check { background:var(--accent); border-color:var(--accent); }
+  .payment-link-btn { display:block; width:100%; padding:.7rem; text-align:center; font-size:.82rem; letter-spacing:.08em; text-transform:uppercase; border:none; cursor:pointer; margin-bottom:.5rem; text-decoration:none; font-family:'DM Sans',sans-serif; }
+  .payment-link-btn.click-btn { background:#00AAFF; color:#fff; }
+  .payment-link-btn.payme-btn { background:#1AC8A0; color:#fff; }
+  .payment-link-btn.uzum-btn { background:#7b2ff7; color:#fff; font-weight:700; }
+
+  /* Uzum Nasiya installment selector */
+  .nasiya-plans { display:grid; grid-template-columns:repeat(3,1fr); gap:.5rem; margin-top:.7rem; }
+  .nasiya-plan { background:var(--card); border:2px solid var(--border); padding:.7rem .4rem; text-align:center; cursor:pointer; transition:all .2s; border-radius:4px; }
+  .nasiya-plan.selected { border-color:#7b2ff7; background:rgba(123,47,247,.12); }
+  .nasiya-plan .np-months { font-size:1.2rem; font-weight:900; color:#7b2ff7; }
+  .nasiya-plan .np-label { font-size:.62rem; color:var(--hint); text-transform:uppercase; letter-spacing:.06em; }
+  .nasiya-plan .np-monthly { font-size:.72rem; color:var(--text); margin-top:.2rem; font-weight:600; }
+  .nasiya-info-box { background:rgba(123,47,247,.1); border:1px solid rgba(123,47,247,.3); padding:.7rem .9rem; margin-top:.6rem; border-radius:4px; }
+  .nasiya-info-box .ni-row { display:flex; justify-content:space-between; font-size:.8rem; padding:.2rem 0; }
+  .nasiya-info-box .ni-total { font-weight:700; color:#7b2ff7; font-size:.88rem; border-top:1px dashed rgba(123,47,247,.3); margin-top:.3rem; padding-top:.4rem; }
+
+  /* ── Xarita modal ── */
+  #map-modal { position:fixed; inset:0; z-index:500; background:#0a0608; display:none; flex-direction:column; }
+  #map-modal.open { display:flex; }
+  #map-frame { flex:1; border:none; width:100%; }
+  .map-topbar { padding:.8rem 1rem; background:var(--card); border-bottom:1px solid var(--border); display:flex; align-items:center; gap:.8rem; }
+  .map-topbar input { flex:1; background:var(--surface); border:1px solid var(--border); color:var(--text); padding:.5rem .8rem; font-family:'DM Sans',sans-serif; font-size:.82rem; outline:none; }
+  .map-topbar input:focus { border-color:var(--accent); }
+  .map-confirm-bar { padding:.8rem 1rem; background:var(--card); border-top:1px solid var(--border); }
+  .map-selected-addr { font-size:.78rem; color:var(--hint); margin-bottom:.5rem; min-height:1.2rem; }
+  #map-confirm-btn { width:100%; background:var(--accent); color:#fff; border:none; padding:.75rem; font-family:'DM Sans',sans-serif; font-size:.85rem; letter-spacing:.1em; text-transform:uppercase; cursor:pointer; }
+
+  /* ── Chek modal ── */
+  #receipt-modal {
+    position:fixed; inset:0; z-index:5000;
+    background:rgba(0,0,0,.92);
+    display:none; align-items:center; justify-content:center;
+    padding:1rem; overflow-y:auto;
+  }
+  #receipt-modal.open { display:flex; }
+  .receipt-box {
+    background:#fff; color:#111;
+    width:100%; max-width:360px;
+    font-family:'DM Sans',sans-serif;
+    box-shadow:0 0 0 1px #eee, 0 8px 32px rgba(0,0,0,.4);
+    border-radius:2px;
+    overflow:hidden;
+  }
+  .receipt-header {
+    background:linear-gradient(135deg,#ff9000,#ffb347);
+    color:#000; padding:1.3rem 1rem 1rem;
+    text-align:center;
+  }
+  .receipt-header .r-logo {
+    font-family:'DM Sans',sans-serif;
+    font-size:1.6rem; font-weight:900;
+    text-transform:uppercase; letter-spacing:.04em;
+    line-height:1;
+  }
+  .receipt-header .r-sub {
+    font-size:.58rem; letter-spacing:.22em;
+    text-transform:uppercase; color:rgba(0,0,0,.55);
+    margin-top:.3rem; font-weight:700;
+  }
+  .receipt-body { padding:1rem 1.1rem; }
+  .receipt-row {
+    display:flex; justify-content:space-between; align-items:flex-start;
+    padding:.32rem 0; font-size:.81rem;
+    border-bottom:1px dashed #e8e8e8;
+  }
+  .receipt-row:last-child { border-bottom:none; }
+  .receipt-row.total {
+    font-weight:800; font-size:.98rem;
+    border-top:2px solid #111; border-bottom:none;
+    margin-top:.4rem; padding-top:.5rem;
+    color:#000;
+  }
+  .receipt-row.total span:last-child { color:#ff9000; }
+  .receipt-divider {
+    text-align:center; color:#bbb;
+    font-size:.6rem; letter-spacing:.16em;
+    text-transform:uppercase; padding:.45rem 0;
+    position:relative;
+  }
+  .receipt-divider::before,.receipt-divider::after {
+    content:''; position:absolute; top:50%;
+    width:30%; height:1px; background:#eee;
+  }
+  .receipt-divider::before { left:0; }
+  .receipt-divider::after { right:0; }
+  .receipt-footer {
+    text-align:center; padding:1rem;
+    border-top:2px dashed #eee;
+    background:#fafafa;
+  }
+  /* Perforation line */
+  .receipt-perf {
+    border-top:2px dashed #ddd;
+    margin:0; height:0;
+    background:repeating-linear-gradient(90deg,#ddd 0,#ddd 6px,transparent 6px,transparent 12px);
+    height:2px; border:none;
+  }
+
+  /* ── Buyurtma forma ── */
+  .order-form { margin:0 1rem .8rem; background:var(--card); border:1px solid var(--border); padding:1rem; }
+  .order-form-title { font-size:.7rem; letter-spacing:.12em; text-transform:uppercase; color:var(--hint); margin-bottom:.7rem; }
+  .order-form input { width:100%; background:var(--surface); border:1px solid var(--border); color:var(--text); padding:.6rem .85rem; font-family:'DM Sans',sans-serif; font-size:.83rem; outline:none; margin-bottom:.5rem; }
+  .order-form input:focus { border-color:var(--accent); }
+  .order-form input::placeholder { color:var(--hint); }
+  .order-receiver-toggle { display:flex; align-items:center; gap:.5rem; font-size:.78rem; color:var(--hint); margin-bottom:.5rem; cursor:pointer; }
+  .order-receiver-toggle input[type=checkbox] { width:16px; height:16px; accent-color:var(--accent); margin:0; }
+  #receiver-section { display:none; }
+
+  /* ── Izoh javob ── */
+  .review-card { position:relative; }
+  .review-reply { background:rgba(201,85,106,.07); border-left:2px solid var(--accent); padding:.5rem .7rem; margin-top:.4rem; font-size:.76rem; color:var(--hint); }
+  .review-reply-label { font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); margin-bottom:.2rem; }
+
+  /* ── Admin izohlar sahifasi ── */
+  .review-adm-card { background:var(--card); border:1px solid var(--border); padding:.9rem 1.1rem; margin-bottom:.6rem; }
+  .review-adm-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:.35rem; }
+  .review-adm-meta { font-size:.72rem; color:var(--hint); }
+  .review-adm-prod { font-size:.78rem; font-weight:500; color:var(--accent2); margin-bottom:.3rem; }
+  .review-adm-text { font-size:.82rem; line-height:1.5; }
+  .review-adm-reply { margin-top:.5rem; background:var(--surface); border:1px solid var(--border); padding:.5rem .75rem; font-size:.78rem; color:var(--hint); }
+  .review-adm-reply-label { font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); }
+  .review-reply-input { width:100%; background:var(--surface); border:1px solid var(--border); color:var(--text); padding:.5rem .75rem; font-size:.8rem; font-family:'DM Sans',sans-serif; outline:none; margin-top:.5rem; resize:none; min-height:55px; }
+  .review-reply-input:focus { border-color:var(--accent); }
+
+  /* ── Buyurtmada "Yetkazildi" tugmasi (mijoz) ── */
+  .order-confirm-btn { background:transparent; border:1px solid var(--green); color:var(--green); padding:.4rem .8rem; font-size:.75rem; cursor:pointer; font-family:'DM Sans',sans-serif; margin-top:.4rem; }
+  .order-confirm-btn:disabled { opacity:.4; cursor:default; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════
+     AGE VERIFICATION (faqat mijozlar uchun)
+════════════════════════════════ -->
+<div id="age-gate" style="
+  display:none;
+  position:fixed;inset:0;z-index:9999;
+  background:#0a0608;
+  flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:2rem;
+">
+  <div style="font-size:3rem;margin-bottom:1rem">🔞</div>
+  <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;margin-bottom:.6rem;color:#f0e8ec">
+    18+ <em style="font-style:italic;color:#e8a0b0">tasdiqlash</em>
+  </div>
+  <p style="color:#8a7580;font-size:.88rem;line-height:1.6;max-width:280px;margin:0 auto 2rem">
+    Bu platforma faqat 18 yoshdan oshgan shaxslar uchun mo'ljallangan. Yoshingizni tasdiqlang.
+  </p>
+  <button onclick="ageConfirm()" style="
+    background:#c9556a;color:#fff;border:none;
+    padding:.9rem 2.5rem;font-family:'DM Sans',sans-serif;
+    font-size:.9rem;letter-spacing:.12em;text-transform:uppercase;
+    cursor:pointer;margin-bottom:.8rem;width:220px;
+  ">✅ Ha, 18 yoshdaman</button>
+  <button onclick="ageDeny()" style="
+    background:transparent;color:#8a7580;border:1px solid #2a1f25;
+    padding:.7rem 2.5rem;font-family:'DM Sans',sans-serif;
+    font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;
+    cursor:pointer;width:220px;
+  ">✗ Yo'q, chiqib ketaman</button>
+</div>
+
+<!-- ════════════════════════════════
+     SHOP (MIJOZ QISMI)
+════════════════════════════════ -->
+<div id="shop-wrap">
+
+  <div class="topbar">
+    <div class="logo">Velvet<span>Box</span></div>
+    <button class="cart-icon" onclick="goPage('cart')">
+      🛒
+      <span class="cart-num" id="cart-count" style="display:none">0</span>
+    </button>
+  </div>
+
+  <!-- HOME -->
+  <div class="page active" id="page-home">
+    <div class="hero">
+      <div class="hero-inner">
+        <div class="age-badge">18+ Faqat kattalar</div>
+        <h1>Intim dunyoga<br><em>xush kelibsiz</em></h1>
+        <p>Diskret yetkazib berish. Butun O'zbekiston bo'ylab.</p>
+      </div>
+    </div>
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="Mahsulot izlash..." oninput="searchShopProducts()">
+      <button onclick="searchShopProducts()">🔍</button>
+    </div>
+    <div class="chips" id="shop-chips">
+      <div class="chip active" onclick="filterCat('Barchasi',this)">Barchasi</div>
+    </div>
+    <div class="promo-banner" id="promo-banner">
+      <div class="promo-icon">🎁</div>
+      <div>
+        <h4 id="promo-text">Birinchi buyurtma — 20% chegirma</h4>
+        <p>Promo-kod: <strong id="promo-code">VELVET20</strong></p>
+      </div>
+    </div>
+    <div class="sec-title">Mashhur <em>mahsulotlar</em></div>
+    <div class="prod-list" id="prod-list"></div>
+  </div>
+
+  <!-- CART -->
+  <div class="page" id="page-cart">
+    <div class="sec-title">Mening <em>savatim</em></div>
+    <div id="cart-list"></div>
+    <div id="cart-footer" style="display:none">
+      <!-- Yetkazib berish -->
+      <div style="margin:0 1rem .8rem">
+        <div style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--hint);margin-bottom:.6rem">🚚 Yetkazib berish zonasi</div>
+        <div id="delivery-zones-list"></div>
+        <button onclick="openMapModal()" style="width:100%;background:transparent;border:1px solid var(--border);color:var(--hint);padding:.55rem;font-size:.78rem;cursor:pointer;margin-top:.5rem;font-family:'DM Sans',sans-serif;text-align:left">📍 Xaritadan manzil tanlash →</button>
+      <textarea class="address-input" id="delivery-address" placeholder="Manzilingizni kiriting (ko'cha, uy, mo'ljal)..."></textarea>
+      <!-- To'lov usuli -->
+      <div style="margin-top:.8rem">
+        <div style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--hint);margin-bottom:.6rem">💳 To'lov usuli</div>
+        <div class="payment-methods">
+          <div class="payment-opt selected" id="pay-cash" onclick="selectPayment('cash')">
+            <span class="payment-opt-icon">💵</span>
+            <span class="payment-opt-label">Naqd pul</span>
+            <div class="payment-opt-check">✓</div>
+          </div>
+          <div class="payment-opt" id="pay-transfer" onclick="selectPayment('transfer')">
+            <span class="payment-opt-icon">🏦</span>
+            <span class="payment-opt-label">O'tkazma (karta)</span>
+            <div class="payment-opt-check">✓</div>
+          </div>
+          <div class="payment-opt" id="pay-click" onclick="selectPayment('click')">
+            <span class="payment-opt-icon">🔵</span>
+            <span class="payment-opt-label">Click</span>
+            <div class="payment-opt-check">✓</div>
+          </div>
+          <div class="payment-opt" id="pay-payme" onclick="selectPayment('payme')">
+            <span class="payment-opt-icon">🟢</span>
+            <span class="payment-opt-label">Payme</span>
+            <div class="payment-opt-check">✓</div>
+          </div>
+          <div class="payment-opt" id="pay-nasiya" onclick="selectPayment('nasiya')">
+            <span class="payment-opt-icon">🟣</span>
+            <span class="payment-opt-label">Uzum Nasiya (bo'lib to'lash)</span>
+            <div class="payment-opt-check">✓</div>
+          </div>
+        </div>
+        <div id="online-pay-links" style="display:none"></div>
+      </div>
+      </div>
+      <!-- Buyurtma beruvchi ma'lumotlari -->
+      <div class="order-form">
+        <div class="order-form-title">👤 Buyurtma beruvchi</div>
+        <input type="text" id="order-fullname" placeholder="Ism Familiya *">
+        <input type="tel" id="order-phone" placeholder="Telefon raqam * (+998...)">
+        <label class="order-receiver-toggle">
+          <input type="checkbox" id="receiver-check" onchange="toggleReceiver(this.checked)">
+          Boshqa odamga yuboraman
+        </label>
+        <div id="receiver-section">
+          <div class="order-form-title" style="margin-top:.3rem">📦 Qabul qiluvchi</div>
+          <input type="text" id="receiver-fullname" placeholder="Ism Familiya">
+          <input type="tel" id="receiver-phone" placeholder="Telefon raqam">
+        </div>
+      </div>
+      <div class="cart-total">
+        <span class="cart-total-label">Mahsulotlar:</span>
+        <span id="cart-items-sum">0 so'm</span>
+      </div>
+      <div class="cart-total" style="border-top:none;padding-top:0">
+        <span class="cart-total-label">Yetkazib berish:</span>
+        <span id="cart-delivery-sum" style="color:var(--gold)">0 so'm</span>
+      </div>
+      <div class="cart-total" style="border-top:1px solid var(--border);margin-top:.3rem">
+        <span class="cart-total-label">Jami:</span>
+        <span class="cart-total-sum" id="cart-total-sum">0 so'm</span>
+      </div>
+      <button class="checkout-btn" onclick="checkout()">📦 Buyurtma berish</button>
+    </div>
+  </div>
+
+  <!-- PROFILE -->
+  <div class="page" id="page-profile">
+    <div class="sec-title">Mening <em>profilim</em></div>
+    <div class="profile-section">
+      <h3>Hisob</h3>
+      <div class="profile-row"><span>👤 Ismim</span><span id="tg-name">—</span></div>
+      <div class="profile-row" onclick="openMyOrders()" style="cursor:pointer"><span>📦 Buyurtmalarim</span><span id="my-orders-count">0 ta →</span></div>
+      <div class="profile-row"><span>❤️ Sevimlilar</span><span>0 ta →</span></div>
+    </div>
+    <div class="profile-section">
+      <h3>Ma'lumot</h3>
+      <div class="profile-row" onclick="showToast('Tez kunda...')"><span>🚚 Yetkazib berish</span><span>→</span></div>
+      <div class="profile-row" onclick="showToast('Tez kunda...')"><span>💳 To'lov usullari</span><span>→</span></div>
+      <div class="profile-row" onclick="showToast('Tez kunda...')"><span>🔒 Maxfiylik</span><span>→</span></div>
+      <div class="profile-row" onclick="openSupport()"><span>💬 Qo'llab-quvvatlash</span><span>→</span></div>
+    </div>
+    <div class="profile-section" id="admin-entry-section" style="display:none">
+      <h3>Boshqaruv</h3>
+      <div class="profile-row" onclick="enterAdmin()"><span>👑 Admin panel</span><span>→</span></div>
+    </div>
+    <div class="profile-section">
+      <h3>Do'kon haqida</h3>
+      <div class="profile-row"><span>🌹 VelvetBox</span><span>v2.0</span></div>
+      <div class="profile-row"><span>📞 Telefon</span><span id="shop-phone">+998 90 000 00 00</span></div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" id="nav-home" onclick="goPage('home')">
+      <span class="nav-icon">🏠</span> Bosh sahifa
+    </button>
+    <button class="nav-item" id="nav-cart" onclick="goPage('cart')">
+      <span class="nav-icon">🛒</span> Savat
+    </button>
+    <button class="nav-item" id="nav-profile" onclick="goPage('profile')">
+      <span class="nav-icon">👤</span> Profil
+    </button>
+  </nav>
+</div><!-- /#shop-wrap -->
+
+
+<!-- ════════════════════════════════
+     ADMIN LOGIN
+════════════════════════════════ -->
+<div id="admin-login">
+  <div style="font-size:2.5rem;margin-bottom:1rem">👑</div>
+  <h2>Admin <em style="font-style:italic;color:var(--accent2)">kirish</em></h2>
+  <p>PIN-kodni kiriting</p>
+  <input class="pin-input" type="password" id="pin-field" maxlength="6" placeholder="••••••" onkeydown="if(event.key==='Enter')checkPin()">
+  <button class="pin-btn" onclick="checkPin()">Kirish</button>
+  <div class="pin-error" id="pin-error"></div>
+  <button class="btn btn-ghost" style="margin-top:1rem;font-size:.75rem" onclick="exitAdmin()">← Orqaga</button>
+</div>
+
+
+<!-- ════════════════════════════════
+     ADMIN PANEL
+════════════════════════════════ -->
+<div id="admin-panel">
+
+  <!-- Sidebar -->
+  <div class="adm-sidebar">
+    <div class="adm-sidebar-logo">
+      <div class="logo-text">Velvet<span>Box</span></div>
+      <div class="logo-sub">Admin Panel</div>
+    </div>
+    <nav class="adm-nav">
+      <div class="adm-nav-group">Asosiy</div>
+      <div class="adm-link active" onclick="admGoPage('dashboard',this)"><span class="ni">📊</span><span>Dashboard</span></div>
+      <div class="adm-link" onclick="admGoPage('orders',this)"><span class="ni">📦</span><span>Buyurtmalar</span></div>
+      <div class="adm-nav-group">Katalog</div>
+      <div class="adm-link" onclick="admGoPage('products',this)"><span class="ni">🛍️</span><span>Mahsulotlar</span></div>
+      <div class="adm-link" onclick="admGoPage('categories',this)"><span class="ni">🗂️</span><span>Kategoriyalar</span></div>
+      <div class="adm-nav-group">Boshqaruv</div>
+      <div class="adm-link" onclick="admGoPage('customers',this)"><span class="ni">👥</span><span>Mijozlar</span></div>
+      <div class="adm-link" onclick="admGoPage('delivery',this)"><span class="ni">🚚</span><span>Yetkazib berish</span></div>
+      <div class="adm-link" onclick="admGoPage('reviews',this)"><span class="ni">💬</span><span>Izohlar</span></div>
+      <div class="adm-link" onclick="admGoPage('settings',this)"><span class="ni">⚙️</span><span>Sozlamalar</span></div>
+    </nav>
+    <div class="adm-sidebar-foot">
+      <button class="adm-exit-btn" onclick="exitAdmin()"><span>🚪</span><span>Chiqish</span></button>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="adm-main">
+    <div class="adm-topbar">
+      <div class="adm-page-title" id="adm-topbar-title">Dashboard <em>paneli</em></div>
+      <div style="font-size:.7rem;color:var(--hint)" id="adm-date"></div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="adm-page active" id="adm-page-dashboard">
+
+      <!-- Tezkor amallar -->
+      <div style="display:flex;gap:.7rem;margin-bottom:1.2rem;flex-wrap:wrap">
+        <button class="btn btn-primary" style="padding:.7rem 1.3rem;font-size:.82rem" onclick="openProductModal()">🛍️ + Mahsulot qo'shish</button>
+        <button class="btn btn-gold" style="padding:.7rem 1.3rem;font-size:.82rem" onclick="openCategoryModal()">🗂️ + Kategoriya qo'shish</button>
+      </div>
+
+      <div class="adm-stats">
+        <div class="adm-stat">
+          <div class="adm-stat-icon">📦</div>
+          <div class="adm-stat-label">Bugungi buyurtmalar</div>
+          <div class="adm-stat-val" id="ds-orders">0</div>
+          <div class="adm-stat-sub">ta yangi</div>
+        </div>
+        <div class="adm-stat gold">
+          <div class="adm-stat-icon">💰</div>
+          <div class="adm-stat-label">Bugungi daromad</div>
+          <div class="adm-stat-val" id="ds-revenue">0</div>
+          <div class="adm-stat-sub">so'm</div>
+        </div>
+        <div class="adm-stat green">
+          <div class="adm-stat-icon">✅</div>
+          <div class="adm-stat-label">Yetkazildi (jami)</div>
+          <div class="adm-stat-val" id="ds-delivered">0</div>
+          <div class="adm-stat-sub">buyurtma</div>
+        </div>
+        <div class="adm-stat">
+          <div class="adm-stat-icon">🛍️</div>
+          <div class="adm-stat-label">Katalog</div>
+          <div class="adm-stat-val" id="ds-products">0</div>
+          <div class="adm-stat-sub">mahsulot</div>
+        </div>
+      </div>
+
+      <div class="adm-two-col">
+        <div class="adm-table-wrap">
+          <div class="adm-table-head">
+            <div class="adm-table-title">So'nggi <em>buyurtmalar</em></div>
+          </div>
+          <table><thead><tr><th>#</th><th>Mijoz</th><th>Jami</th><th>Holat</th></tr></thead>
+          <tbody id="ds-recent-tbody"></tbody></table>
+        </div>
+        <div class="adm-table-wrap">
+          <div class="adm-table-head"><div class="adm-table-title">Top <em>mahsulotlar</em></div></div>
+          <table><thead><tr><th>Mahsulot</th><th>Sotildi</th><th>Daromad</th></tr></thead>
+          <tbody id="ds-top-tbody"></tbody></table>
+        </div>
+      </div>
+
+      <div class="adm-table-wrap">
+        <div class="adm-table-head">
+          <div class="adm-table-title">Haftalik <em>savdo</em></div>
+          <div style="display:flex;gap:1.5rem">
+            <div><div class="adm-stat-label">7 kunlik daromad</div><div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--accent2)" id="ds-week-rev">0 so'm</div></div>
+            <div><div class="adm-stat-label">Buyurtmalar</div><div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem" id="ds-week-ord">0 ta</div></div>
+          </div>
+        </div>
+        <div style="padding:1rem 1.1rem">
+          <div class="week-chart-bars" id="ds-week-chart"></div>
+          <div class="week-labels" id="ds-week-labels"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORDERS -->
+    <div class="adm-page" id="adm-page-orders">
+      <div class="adm-search-row">
+        <div class="adm-search-wrap"><span>🔍</span><input type="text" placeholder="Buyurtma # yoki mijoz..." oninput="filterOrders(this.value)"></div>
+        <select class="form-select" style="width:155px" onchange="filterOrderStatus(this.value)">
+          <option value="">Barcha holatlar</option>
+          <option value="pending">Kutilmoqda</option>
+          <option value="confirmed">Tasdiqlangan</option>
+          <option value="delivered">Yetkazildi</option>
+          <option value="cancelled">Bekor qilindi</option>
+        </select>
+      </div>
+      <div class="adm-table-wrap">
+        <div class="adm-table-head">
+          <div class="adm-table-title">Buyurtmalar <em>ro'yxati</em></div>
+          <div style="font-size:.72rem;color:var(--hint)" id="orders-count">0 ta</div>
+        </div>
+        <table><thead><tr><th>#ID</th><th>Mijoz</th><th>Mahsulotlar</th><th>Jami</th><th>Sana</th><th>Holat</th><th>Amal</th></tr></thead>
+        <tbody id="orders-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div class="adm-page" id="adm-page-products">
+      <div id="no-cat-warning" style="display:none;background:rgba(200,169,110,.12);border:1px solid var(--gold);color:var(--gold);padding:.8rem 1.1rem;margin-bottom:1rem;font-size:.82rem;border-radius:2px">
+        ⚠️ Mahsulot qo'shish uchun avval <strong style="cursor:pointer;text-decoration:underline" onclick="admGoPage('categories',null)">Kategoriya</strong> qo'shing!
+      </div>
+      <div class="adm-search-row">
+        <div class="adm-search-wrap"><span>🔍</span><input type="text" placeholder="Mahsulot nomi..." oninput="filterAdmProducts(this.value)"></div>
+        <button class="btn btn-primary" onclick="openProductModal()">+ Qo'shish</button>
+      </div>
+      <div class="adm-table-wrap">
+        <div class="adm-table-head">
+          <div class="adm-table-title">Mahsulotlar <em>katalogi</em></div>
+          <div style="font-size:.72rem;color:var(--hint)" id="adm-products-count">0 ta</div>
+        </div>
+        <div id="adm-products-tbody"></div>
+      </div>
+    </div>
+
+    <!-- CATEGORIES -->
+    <div class="adm-page" id="adm-page-categories">
+      <div class="adm-search-row">
+        <div></div>
+        <button class="btn btn-primary" onclick="openCategoryModal()">+ Kategoriya</button>
+      </div>
+      <div class="adm-table-wrap">
+        <div class="adm-table-head"><div class="adm-table-title">Kategoriyalar</div></div>
+        <table><thead><tr><th>Emoji</th><th>Nomi</th><th>Mahsulotlar</th><th>Amal</th></tr></thead>
+        <tbody id="categories-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- CUSTOMERS -->
+    <div class="adm-page" id="adm-page-customers">
+      <div class="adm-search-row">
+        <div class="adm-search-wrap"><span>🔍</span><input type="text" placeholder="Ism..." oninput="filterCustomers(this.value)"></div>
+      </div>
+      <div class="adm-table-wrap">
+        <div class="adm-table-head">
+          <div class="adm-table-title">Mijozlar <em>bazasi</em></div>
+          <div style="font-size:.72rem;color:var(--hint)" id="customers-count">0 ta</div>
+        </div>
+        <table><thead><tr><th>Ism</th><th>Telegram ID</th><th>Buyurtmalar</th><th>Jami xarid</th><th>Oxirgi faollik</th></tr></thead>
+        <tbody id="customers-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- DELIVERY ZONES (admin) -->
+    <div class="adm-page" id="adm-page-delivery">
+      <div style="max-width:500px">
+        <div class="adm-search-row">
+          <div></div>
+          <button class="btn btn-primary" onclick="openDeliveryModal()">+ Zona qo'shish</button>
+        </div>
+        <div class="adm-table-wrap">
+          <div class="adm-table-head"><div class="adm-table-title">Yetkazib berish <em>zonalari</em></div></div>
+          <table><thead><tr><th>Zona nomi</th><th>Narx</th><th>Vaqt</th><th>Amal</th></tr></thead>
+          <tbody id="delivery-tbody"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVIEWS (IZOHLAR) -->
+    <div class="adm-page" id="adm-page-reviews">
+      <div class="adm-search-row">
+        <div class="adm-search-wrap"><span>🔍</span><input type="text" placeholder="Izoh yoki mahsulot..." oninput="filterAdmReviews(this.value)"></div>
+        <select class="form-select" style="width:140px" onchange="filterAdmReviewStars(this.value)">
+          <option value="">Barcha yulduz</option>
+          <option value="5">★★★★★</option>
+          <option value="4">★★★★</option>
+          <option value="3">★★★</option>
+          <option value="2">★★</option>
+          <option value="1">★</option>
+        </select>
+      </div>
+      <div id="adm-reviews-list"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="adm-page" id="adm-page-settings">
+      <div style="max-width:500px">
+        <div class="adm-table-wrap">
+          <div class="adm-table-head"><div class="adm-table-title">Do'kon <em>sozlamalari</em></div></div>
+          <div style="padding:1.3rem">
+            <div class="form-group"><label class="form-label">Do'kon nomi</label><input class="form-input" id="s-shopname" value="VelvetBox"></div>
+            <div class="form-group"><label class="form-label">Telefon</label><input class="form-input" id="s-phone" value="+998 90 000 00 00"></div>
+            <div class="form-group"><label class="form-label">Support username</label><input class="form-input" id="s-support" value="@your_support_username"></div>
+            <div class="form-group"><label class="form-label">Promo-kod</label><input class="form-input" id="s-promo" value="VELVET20"></div>
+            <div class="form-group"><label class="form-label">Chegirma (%)</label><input class="form-input" id="s-discount" type="number" value="20"></div>
+            <div class="form-group"><label class="form-label">Admin PIN (6 raqam)</label><input class="form-input" id="s-pin" type="password" placeholder="Yangi PIN kiriting"></div>
+            <div class="form-group"><label class="form-label">Telegram Bot Token</label><input class="form-input" id="s-bottoken" placeholder="123456:ABC-DEF..." type="password"></div>
+            <div class="form-group"><label class="form-label">Admin Chat ID (buyurtma keladigan)</label><input class="form-input" id="s-chatid" placeholder="123456789"></div>
+            <div class="form-group"><label class="form-label">Click Merchant ID</label><input class="form-input" id="s-click-id" placeholder="12345"></div>
+            <div class="form-group"><label class="form-label">Payme Merchant ID</label><input class="form-input" id="s-payme-id" placeholder="your_merchant_id"></div>
+            <div class="form-group"><label class="form-label">Karta raqami (o'tkazma uchun)</label><input class="form-input" id="s-card" placeholder="8600 0000 0000 0000"></div>
+            <button class="btn btn-primary" onclick="saveSettings()">💾 Saqlash</button>
+            <button class="btn btn-danger" style="margin-top:1.5rem;border-color:#c9556a;color:#c9556a;display:block;width:100%;padding:.7rem" onclick="resetStore()">🗑️ Barcha ma'lumotlarni tozalash (reset)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.adm-main -->
+
+  <!-- Mobile pastki nav (faqat telefonda) -->
+  <nav class="adm-bottom-nav" id="adm-bottom-nav">
+    <div class="adm-bottom-nav-inner">
+      <button class="adm-bnav-item active" id="bnav-dashboard" onclick="admGoPage('dashboard',this,'bnav-dashboard')">
+        <span class="ni">📊</span>Dashboard
+      </button>
+      <button class="adm-bnav-item" id="bnav-orders" onclick="admGoPage('orders',this,'bnav-orders')">
+        <span class="ni">📦</span>Buyurtmalar
+      </button>
+      <button class="adm-bnav-item" id="bnav-products" onclick="admGoPage('products',this,'bnav-products')">
+        <span class="ni">🛍️</span>Mahsulotlar
+      </button>
+      <button class="adm-bnav-item" id="bnav-categories" onclick="admGoPage('categories',this,'bnav-categories')">
+        <span class="ni">🗂️</span>Kategoriya
+      </button>
+      <button class="adm-bnav-item" id="bnav-customers" onclick="admGoPage('customers',this,'bnav-customers')">
+        <span class="ni">👥</span>Mijozlar
+      </button>
+      <button class="adm-bnav-item" id="bnav-delivery" onclick="admGoPage('delivery',this,'bnav-delivery')">
+        <span class="ni">🚚</span>Yetkazish
+      </button>
+      <button class="adm-bnav-item" id="bnav-reviews" onclick="admGoPage('reviews',this,'bnav-reviews')">
+        <span class="ni">💬</span>Izohlar
+      </button>
+      <button class="adm-bnav-item" id="bnav-settings" onclick="admGoPage('settings',this,'bnav-settings')">
+        <span class="ni">⚙️</span>Sozlamalar
+      </button>
+      <button class="adm-bnav-item" onclick="exitAdmin()">
+        <span class="ni">🚪</span>Chiqish
+      </button>
+    </div>
+  </nav>
+
+</div><!-- /#admin-panel -->
+
+
+<!-- PRODUCT DETAIL MODAL (shop) -->
+<div class="modal-overlay" id="modal-prod-detail">
+  <div class="modal" style="max-width:480px;padding:0;overflow:hidden">
+    <div style="position:relative">
+      <div id="prod-detail-media"></div>
+      <button class="modal-close" style="position:absolute;top:.6rem;right:.6rem;background:rgba(0,0,0,.6);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center" onclick="closeModal('modal-prod-detail')">✕</button>
+    </div>
+    <div class="prod-detail-body">
+      <div class="prod-detail-name" id="pd-name"></div>
+      <div id="pd-rating-summary" class="rating-summary"></div>
+      <div class="prod-detail-desc" id="pd-desc"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--accent2)" id="pd-price"></div>
+        <button class="add-btn" style="padding:.5rem 1.2rem;font-size:.82rem" onclick="addToCart(currentDetailId);showToast('✓ Savatga qo&apos;shildi');closeModal('modal-prod-detail')">+ Savat</button>
+      </div>
+      <!-- Izohlar -->
+      <div id="pd-reviews"></div>
+    </div>
+    <!-- Izoh yozish -->
+    <div class="review-input-area">
+      <h4>Izoh qoldirish</h4>
+      <div class="star-input" id="review-star-input">
+        <span class="star" onclick="setReviewStar(1)">★</span>
+        <span class="star" onclick="setReviewStar(2)">★</span>
+        <span class="star" onclick="setReviewStar(3)">★</span>
+        <span class="star" onclick="setReviewStar(4)">★</span>
+        <span class="star" onclick="setReviewStar(5)">★</span>
+      </div>
+      <textarea class="address-input" id="review-text-input" placeholder="Fikringizni yozing..." style="margin-top:0;margin-bottom:.6rem"></textarea>
+      <button class="btn btn-primary" style="width:100%" onclick="submitReview()">💬 Yuborish</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-overlay" id="modal-product">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="prod-modal-title">Yangi mahsulot</div>
+      <button class="modal-close" onclick="closeModal('modal-product')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Mahsulot rasmi</label>
+        <div id="prod-img-upload-area" class="prod-img-upload" onclick="document.getElementById('p-img-file').click()">
+          <span class="ui-icon">📸</span><span>Rasm tanlash</span>
+        </div>
+        <div id="prod-img-preview-area" class="prod-img-preview" style="display:none">
+          <img id="prod-img-preview" src="" alt="">
+          <button class="prod-img-remove" onclick="removeProdImg(event)">✕</button>
+        </div>
+        <input type="file" id="p-img-file" accept="image/*" style="display:none" onchange="handleProdImg(this)">
+      </div>
+      <div class="form-group"><label class="form-label">Emoji (rasm yo'q bo'lsa)</label><input class="form-input" id="p-emoji" placeholder="🌹" maxlength="4"></div>
+      <div class="form-group"><label class="form-label">Nomi</label><input class="form-input" id="p-name" placeholder="Mahsulot nomi"></div>
+      <div class="form-group"><label class="form-label">Tavsif</label><textarea class="form-textarea" id="p-desc" placeholder="Qisqa tavsif..."></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Narx (so'm)</label><input class="form-input" id="p-price" type="number" placeholder="89000"></div>
+        <div class="form-group"><label class="form-label">Kategoriya</label>
+          <select class="form-select" id="p-cat"></select>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Badge</label>
+        <select class="form-select" id="p-badge">
+          <option value="">— yo'q —</option>
+          <option value="Yangi">Yangi</option>
+          <option value="Top">Top</option>
+          <option value="Chegirma">Chegirma</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-product')">Bekor</button>
+      <button class="btn btn-primary" onclick="saveProduct()">💾 Saqlash</button>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORY MODAL -->
+<div class="modal-overlay" id="modal-category">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Kategoriya</div>
+      <button class="modal-close" onclick="closeModal('modal-category')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Emoji</label><input class="form-input" id="c-emoji" placeholder="🌸" maxlength="4"></div>
+      <div class="form-group"><label class="form-label">Nomi</label><input class="form-input" id="c-name" placeholder="Kategoriya nomi"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-category')">Bekor</button>
+      <button class="btn btn-primary" onclick="saveCategory()">💾 Saqlash</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELIVERY ZONE MODAL -->
+<div class="modal-overlay" id="modal-delivery">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Yetkazib berish <em style="font-style:italic;color:var(--accent2)">zonasi</em></div>
+      <button class="modal-close" onclick="closeModal('modal-delivery')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Zona nomi</label><input class="form-input" id="dz-name" placeholder="Masalan: Toshkent shahar"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Narx (so'm)</label><input class="form-input" id="dz-price" type="number" placeholder="15000"></div>
+        <div class="form-group"><label class="form-label">Vaqt</label><input class="form-input" id="dz-time" placeholder="1-2 kun"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-delivery')">Bekor</button>
+      <button class="btn btn-primary" onclick="saveDeliveryZone()">💾 Saqlash</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- XARITA MODAL -->
+<div id="map-modal">
+  <div class="map-topbar">
+    <button onclick="closeMapModal()" style="background:none;border:none;color:var(--hint);font-size:1.2rem;cursor:pointer">✕</button>
+    <input type="text" id="map-search-input" placeholder="Manzil qidiring..." onkeydown="if(event.key==='Enter')searchMapAddress()">
+    <button onclick="searchMapAddress()" style="background:var(--accent);border:none;color:#fff;padding:.45rem .8rem;font-size:.82rem;cursor:pointer">🔍</button>
+  </div>
+  <iframe id="map-frame" src="https://yandex.uz/map-widget/v1/?ll=69.279737,41.311151&z=12&lang=uz_UZ" allowfullscreen></iframe>
+  <div class="map-confirm-bar">
+    <div class="map-selected-addr" id="map-selected-addr">📍 Xaritadan joy tanlang</div>
+    <button id="map-confirm-btn" onclick="confirmMapAddress()">✅ Ushbu manzilni tanlash</button>
+  </div>
+</div>
+
+<!-- CHEK MODAL -->
+<div id="receipt-modal">
+  <div style="width:100%;max-width:380px;display:flex;flex-direction:column;align-items:center;max-height:95vh;">
+
+    <!-- Chek o'zi (oq, chop etiladigan) -->
+    <div class="receipt-box" id="receipt-content">
+
+      <!-- Header -->
+      <div class="receipt-header">
+        <div style="display:flex;align-items:center;justify-content:center;gap:.5rem;margin-bottom:.3rem">
+          <div style="background:#000;color:#ff9000;font-size:1rem;font-weight:900;padding:.15rem .5rem;border-radius:3px">18+</div>
+          <div class="r-logo">Velvet<span style="background:#ff9000;color:#000;padding:0 .3rem;border-radius:2px">Box</span></div>
+        </div>
+        <div class="r-sub">RASMIY BUYURTMA CHEKI</div>
+        <div style="margin-top:.5rem;font-size:.65rem;color:rgba(0,0,0,.5);letter-spacing:.06em">diskret · tez · ishonchli</div>
+      </div>
+
+      <!-- 18+ Muhri (watermark) -->
+      <div style="position:relative">
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:4rem;font-weight:900;color:rgba(255,144,0,.08);pointer-events:none;user-select:none;white-space:nowrap;z-index:0">18+ VELVETBOX</div>
+        <div class="receipt-body" id="receipt-body" style="position:relative;z-index:1"></div>
+      </div>
+
+      <!-- Footer -->
+      <div class="receipt-footer">
+        <div style="display:inline-block;border:2px solid #ff9000;color:#ff9000;font-weight:900;font-size:.7rem;padding:.2rem .6rem;border-radius:3px;margin-bottom:.4rem;letter-spacing:.08em">18+ FAQAT KATTALAR</div>
+        <div style="color:#aaa;font-size:.68rem">VelvetBox — Diskret xarid platformasi</div>
+        <div style="color:#ccc;font-size:.72rem;margin-top:.2rem;font-weight:600">velvetbox.uz</div>
+      </div>
+    </div>
+
+    <!-- Tugmalar -->
+    <div style="width:100%;padding:.7rem 0 .3rem;display:flex;flex-direction:column;gap:.5rem">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+        <button onclick="downloadReceipt()" style="background:#ff9000;color:#000;border:none;padding:.75rem .5rem;font-weight:900;font-size:.8rem;cursor:pointer;border-radius:6px;letter-spacing:.04em">⬇️ Yuklab olish</button>
+        <button onclick="printReceipt()" style="background:#222;color:#fff;border:1px solid #444;padding:.75rem .5rem;font-weight:700;font-size:.8rem;cursor:pointer;border-radius:6px;letter-spacing:.04em">🖨️ Chop etish</button>
+      </div>
+      <button onclick="document.getElementById('receipt-modal').classList.remove('open')" style="width:100%;background:transparent;color:#888;border:1px solid #333;padding:.65rem;font-size:.82rem;cursor:pointer;border-radius:6px">✕ Yopish</button>
+    </div>
+  </div>
+</div>
+
+<!-- ORDER MODAL -->
+<div class="modal-overlay" id="modal-order">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Buyurtma <em style="font-style:italic;color:var(--accent2)">tafsilotlari</em></div>
+      <button class="modal-close" onclick="closeModal('modal-order')">✕</button>
+    </div>
+    <div class="modal-body" id="order-detail-body"></div>
+    <div class="modal-foot" style="flex-wrap:wrap;gap:.4rem">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-order')">Yopish</button>
+      <button class="btn btn-ghost btn-sm" onclick="openOrderReceipt()">🖨️ Chek</button>
+      <button class="btn btn-ghost btn-sm" onclick="openCustomerChat()">💬 Yozish</button>
+      <button class="btn btn-sm" style="background:#e8a800;color:#000;font-weight:700" onclick="updateOrderStatus('processing')">⏳ Saralanmoqda</button>
+      <button class="btn btn-sm" style="background:#5c9cba;color:#fff;font-weight:700" onclick="updateOrderStatus('confirmed')">✅ Tasdiqlandi</button>
+      <button class="btn btn-sm" style="background:#ff9000;color:#000;font-weight:700" onclick="updateOrderStatus('shipping')">🚚 Yetkazilmoqda</button>
+      <button class="btn btn-sm" style="background:#4caf50;color:#fff;font-weight:700" onclick="updateOrderStatus('delivered')">📦 Yetkazildi</button>
+      <button class="btn btn-sm" style="background:#c9556a;color:#fff;font-weight:700" onclick="updateOrderStatus('cancelled')">✗ Bekor</button>
+    </div>
+    <!-- Mijozga xabar yozish -->
+    <div style="padding:.9rem 1.3rem;border-top:1px solid var(--border)">
+      <div style="font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--hint);margin-bottom:.5rem">💬 Mijozga xabar yuborish</div>
+      <div style="display:flex;gap:.5rem">
+        <textarea id="admin-msg-input" placeholder="Xabar yozing..." style="flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:.5rem .75rem;font-size:.82rem;font-family:'DM Sans',sans-serif;outline:none;resize:none;min-height:55px;"></textarea>
+        <button class="btn btn-primary" onclick="sendDirectMessage()" style="align-self:flex-end;padding:.5rem .8rem">📤 Yuborish</button>
+      </div>
+      <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem">
+        <button class="btn btn-ghost btn-sm" onclick="setQuickMsg('Buyurtmangiz qabul qilindi! Tez orada yo\'lga chiqamiz.')">✅ Qabul</button>
+        <button class="btn btn-ghost btn-sm" onclick="setQuickMsg('Buyurtmangiz yo\'lda. Yaqin orada yetib boradi!')">🚚 Yo'lda</button>
+        <button class="btn btn-ghost btn-sm" onclick="setQuickMsg('Mahsulot tayyor. Kuryer olib ketdi!')">📦 Kuryer</button>
+        <button class="btn btn-ghost btn-sm" onclick="setQuickMsg('Uzum Nasiya rasmiylashtirildi. Tasdiqlang!')">🟣 Nasiya</button>
+      </div>
+    </div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════
+//  STORAGE — JSONBin.io
+// ════════════════════════════════
+const STORE_KEY = 'velvetbox_v3';
+const DEFAULT_PIN = '123456';
+const ADMIN_TG_IDS = [5751449422];
+
+const JSONBIN_ID  = '6a1b7d9121f9ee59d29f7350';
+const JSONBIN_KEY = '$2a$10$uLL0v3Lr4JColBh.rCvVGuAEVN2J5.6GlpDalsPqdpxNbHxJaBxBe';
+const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}`;
+
+// Memory cache
+let _memStore = null;
+
+function getStore() {
+  try { const r = localStorage.getItem(STORE_KEY); if(r) { _memStore = JSON.parse(r); return _memStore; } } catch(e){}
+  if(_memStore) return _memStore;
+  return null;
+}
+
+function saveStore() {
+  // 1. Memory
+  _memStore = JSON.parse(JSON.stringify(store));
+  // 2. localStorage
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch(e){}
+  // 3. JSONBin — asosiy bulut saqlash
+  try {
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', JSONBIN_URL, true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('X-Master-Key', JSONBIN_KEY);
+    xhr.setRequestHeader('X-Bin-Versioning', 'false');
+    xhr.send(JSON.stringify(store));
+  } catch(e){ console.log('JSONBin save error:', e); }
+}
+
+async function loadStoreFromCloud() {
+  return new Promise((resolve) => {
+    try {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', JSONBIN_URL + '/latest', true);
+      xhr.setRequestHeader('X-Master-Key', JSONBIN_KEY);
+      xhr.onload = function() {
+        if(xhr.status === 200) {
+          const data = JSON.parse(xhr.responseText);
+          const record = data.record || data;
+          if(record && record.products !== undefined) {
+            _memStore = record;
+            try { localStorage.setItem(STORE_KEY, JSON.stringify(record)); } catch(e){}
+            resolve(record);
+          } else { resolve(null); }
+        } else { resolve(null); }
+      };
+      xhr.onerror = () => resolve(null);
+      xhr.send();
+    } catch(e) { resolve(null); }
+  });
+}
+
+function buildDefaultStore() {
+  return {
+    products: [],
+    categories: [],
+    customers: [],
+    orders: [],
+    settings: {shopName:"VelvetBox",phone:"+998 90 000 00 00",support:"@your_support_username",promo:"VELVET20",discount:20,pin:DEFAULT_PIN,botToken:'8800018973:AAEcTFDL0RsclFGK3yzs-v9hgcp6L0K26wg',chatId:'-1004271276712',clickId:'',paymeId:'',card:''},
+    deliveryZones: [],
+    nextProdId: 1,
+    nextCatId: 1,
+    nextDzId: 1
+  };
+}
+
+function resetStore() {
+  if(!confirm("Barcha ma'lumotlar (mahsulotlar, buyurtmalar, mijozlar) o'chiriladi. Davom etasizmi?")) return;
+  try { localStorage.removeItem(STORE_KEY); } catch(e){}
+  _memStore = null;
+  store = buildDefaultStore();
+  saveStore();
+  renderDashboard();
+  renderAdmProducts();
+  renderCategories();
+  renderOrders();
+  renderCustomers();
+  buildChips();
+  renderShopProducts();
+  showToast("✓ Barcha ma'lumotlar tozalandi");
+}
+
+let store = getStore() || buildDefaultStore();
+if(!store.settings.pin) store.settings.pin = DEFAULT_PIN;
+store.settings.botToken = '8800018973:AAEcTFDL0RsclFGK3yzs-v9hgcp6L0K26wg';
+store.settings.chatId = '-1004271276712';
+
+// Cloud dan yuklab, keyin UI ni yangilash
+(async function() {
+  const cloudData = await loadStoreFromCloud();
+  if(cloudData) {
+    store = cloudData;
+    store.settings.botToken = '8800018973:AAEcTFDL0RsclFGK3yzs-v9hgcp6L0K26wg';
+    store.settings.chatId = '-1004271276712';
+    if(!store.settings.pin) store.settings.pin = DEFAULT_PIN;
+    if(!store.reviews) store.reviews = [];
+    if(!store.deliveryZones) store.deliveryZones = [];
+    buildChips();
+    renderShopProducts();
+  }
+})();
+
+// ════════════════════════════════
+//  HELPERS
+// ════════════════════════════════
+const fmtPrice = p => p.toLocaleString('uz-UZ') + " so'm";
+const stLabel = s => ({pending:'⏸ Kutilmoqda',processing:'⏳ Saralanmoqda',confirmed:'✅ Tasdiqlangan',shipping:'🚚 Yetkazilmoqda',delivered:'📦 Yetkazildi',cancelled:'✗ Bekor qilindi'}[s]||s);
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); });
+});
+
+// ════════════════════════════════
+//  SHOP (MIJOZ) LOGIC
+// ════════════════════════════════
+const tg = window.Telegram?.WebApp;
+if(tg){ tg.ready(); tg.expand(); tg.setHeaderColor('#000000'); tg.setBackgroundColor('#000000'); }
+
+let cart = {};
+let currentCat = 'Barchasi';
+let shopSearchQ = '';
+
+function buildChips() {
+  const el = document.getElementById('shop-chips');
+  el.innerHTML = '<div class="chip active" onclick="filterCat(\'Barchasi\',this)">Barchasi</div>';
+  store.categories.forEach(c=>{
+    el.innerHTML += `<div class="chip" onclick="filterCat('${c.name}',this)">${c.emoji} ${c.name}</div>`;
+  });
+}
+
+function renderShopProducts() {
+  const q = shopSearchQ.toLowerCase();
+  const list = store.products.filter(p=>{
+    const catOk = currentCat==='Barchasi'||p.cat===currentCat;
+    const searchOk = !q||p.name.toLowerCase().includes(q)||p.desc.toLowerCase().includes(q);
+    return catOk && searchOk;
+  });
+  const el = document.getElementById('prod-list');
+  if(!list.length){ el.innerHTML='<div style="text-align:center;padding:2rem;color:var(--hint);font-size:.85rem">Mahsulot topilmadi</div>'; return; }
+  el.innerHTML = list.map(p=>{
+    const avg = getProdRating(p.id);
+    const thumb = p.img
+      ? `<img src="${p.img}" style="width:90px;height:90px;object-fit:cover;display:block">`
+      : p.emoji;
+    return `
+    <div class="prod-card" onclick="openProdDetail(${p.id})">
+      <div class="prod-thumb">${thumb}</div>
+      <div class="prod-body">
+        ${p.badge?`<div class="prod-badge">${p.badge}</div>`:''}
+        <div class="prod-name">${p.name}</div>
+        <div class="prod-desc">${p.desc}</div>
+        ${avg.count>0?`<div class="rating-summary"><span class="rating-avg">★ ${avg.avg}</span><span class="rating-count">(${avg.count} izoh)</span></div>`:''}
+        <div class="prod-foot">
+          <div class="prod-price">${fmtPrice(p.price)}</div>
+          <button class="add-btn" onclick="event.stopPropagation();addToCart(${p.id})">+ Savat</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterCat(cat, el) {
+  currentCat = cat;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  if(el) el.classList.add('active');
+  renderShopProducts();
+}
+function searchShopProducts() { shopSearchQ = document.getElementById('search-input').value; renderShopProducts(); }
+
+function addToCart(id) {
+  const p = store.products.find(x=>x.id===id);
+  if(!p) return;
+  if(cart[id]) cart[id].qty++;
+  else cart[id] = {...p, qty:1};
+  updateCartBadge();
+  showToast('✓ ' + p.name + ' savatga qo\'shildi');
+  if(tg) tg.HapticFeedback?.impactOccurred('light');
+}
+
+function updateCartBadge() {
+  const total = Object.values(cart).reduce((s,i)=>s+i.qty,0);
+  const badge = document.getElementById('cart-count');
+  if(total>0){badge.textContent=total;badge.style.display='flex';}
+  else badge.style.display='none';
+}
+
+function renderCart() {
+  const items = Object.values(cart);
+  const el = document.getElementById('cart-list');
+  const footer = document.getElementById('cart-footer');
+  if(!items.length){
+    el.innerHTML='<div class="cart-empty"><div class="big">🛒</div><div>Savat bo\'sh</div></div>';
+    footer.style.display='none'; return;
+  }
+  el.innerHTML = items.map(item=>`
+    <div class="cart-item">
+      <div class="cart-item-emoji">${item.emoji}</div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-price">${fmtPrice(item.price)}</div>
+      </div>
+      <div class="cart-item-qty">
+        <button class="qty-btn" onclick="changeQty(${item.id},-1)">−</button>
+        <span class="qty-num">${item.qty}</span>
+        <button class="qty-btn" onclick="changeQty(${item.id},1)">+</button>
+      </div>
+    </div>
+  `).join('');
+  footer.style.display='block';
+  renderCartDelivery();
+  updateCartTotal();
+}
+
+function changeQty(id,delta) {
+  if(!cart[id]) return;
+  cart[id].qty += delta;
+  if(cart[id].qty<=0) delete cart[id];
+  updateCartBadge(); renderCart();
+}
+
+function checkout() {
+  const items = Object.values(cart);
+  if(!items.length) return;
+  const payMethod = selectedPayment || 'cash';
+  const fullname = document.getElementById('order-fullname')?.value.trim();
+  const phone = document.getElementById('order-phone')?.value.trim();
+  if(!fullname){ showToast('⚠️ Ism Familiya kiriting'); return; }
+  if(!phone){ showToast('⚠️ Telefon raqam kiriting'); return; }
+  const hasReceiver = document.getElementById('receiver-check')?.checked;
+  const receiverName = hasReceiver ? document.getElementById('receiver-fullname')?.value.trim() : '';
+  const receiverPhone = hasReceiver ? document.getElementById('receiver-phone')?.value.trim() : '';
+  const address = document.getElementById('delivery-address')?.value.trim()||'';
+  const zone = store.deliveryZones?.find(z=>z.id===selectedDeliveryZone);
+  const deliveryPrice = zone ? zone.price : 0;
+  const itemsTotal = items.reduce((s,i)=>s+i.price*i.qty,0);
+  const total = itemsTotal + deliveryPrice;
+  const text = items.map(i=>`${i.emoji} ${i.name} x${i.qty} — ${fmtPrice(i.price*i.qty)}`).join('\n');
+
+  const userName = tg?.initDataUnsafe?.user?.first_name || 'Noma\'lum';
+  const tgId = tg?.initDataUnsafe?.user?.id ? '@user_'+tg.initDataUnsafe.user.id : '@guest';
+  const newOrder = {
+    id: store.orders.length ? Math.max(...store.orders.map(o=>o.id))+1 : 1,
+    customerId: 0, customerName: fullname || userName, phone, tgId,
+    items: [...items], total, status: 'pending',
+    deliveryZoneId: selectedDeliveryZone||null,
+    address,
+    paymentMethod: payMethod,
+    nasiyaMonths: payMethod === 'nasiya' ? selectedNasiyaMonths : null,
+    receiverName: receiverName||'', receiverPhone: receiverPhone||'',
+    customerConfirmed: false,
+    date: new Date().toISOString().split('T')[0],
+    ts: Date.now()
+  };
+
+  const doCheckout = () => {
+    try {
+      store.orders.unshift(newOrder);
+      saveStore();
+      sendTelegramNotification(newOrder);
+    } catch(e) { console.log('save error:', e); }
+
+    // Savatni tozalash
+    cart = {};
+    selectedDeliveryZone = null;
+    selectedPayment = 'cash';
+
+    // Formani tozalash
+    const fn = document.getElementById('order-fullname'); if(fn) fn.value='';
+    const ph = document.getElementById('order-phone'); if(ph) ph.value='';
+    const rc = document.getElementById('receiver-check'); if(rc){ rc.checked=false; toggleReceiver(false); }
+    const da = document.getElementById('delivery-address'); if(da) da.value='';
+
+    updateCartBadge();
+
+    // Home sahifaga o'tish
+    goPage('home');
+
+    // Toast xabar
+    setTimeout(() => showToast('🎉 Buyurtma #' + newOrder.id + ' qabul qilindi!'), 200);
+
+    // Chekni avtomatik ko'rsatish
+    setTimeout(() => showOrderReceipt(newOrder), 400);
+  };
+
+  // Custom confirm modal - har doim ishlaydi
+  showOrderConfirm({
+    items,
+    zone,
+    deliveryPrice,
+    address,
+    total,
+    payMethod,
+    nasiyaMonths: payMethod === 'nasiya' ? selectedNasiyaMonths : null,
+    onConfirm: doCheckout
+  });
+}
+
+let _pendingCheckout = null;
+
+function confirmOrderModal() {
+  // Modalni yop
+  const modal = document.getElementById('order-confirm-modal');
+  if(modal) modal.style.display = 'none';
+
+  // Checkout funksiyasini chaqir
+  const fn = _pendingCheckout;
+  _pendingCheckout = null;
+
+  if(typeof fn === 'function') {
+    setTimeout(fn, 50); // kichik delay - modal yopilgandan keyin
+  }
+}
+
+function cancelOrderModal() {
+  const modal = document.getElementById('order-confirm-modal');
+  if(modal) modal.remove();
+  _pendingCheckout = null;
+}
+
+function showOrderConfirm({items, zone, deliveryPrice, address, total, payMethod, nasiyaMonths, onConfirm}) {
+  const old = document.getElementById('order-confirm-modal');
+  if(old) old.remove();
+  _pendingCheckout = onConfirm;
+
+  const payLabels2 = {cash:'💵 Naqd pul', transfer:'🏦 Karta o\'tkazma', click:'🔵 Click', payme:'🟢 Payme', nasiya:'🟣 Uzum Nasiya (bo\'lib to\'lash)'};
+
+  const modal = document.createElement('div');
+  modal.id = 'order-confirm-modal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.88);display:flex;align-items:flex-end;justify-content:center;';
+  modal.innerHTML = `
+    <div style="background:#1a1a1a;border:1px solid #333;border-bottom:none;width:100%;max-width:480px;border-radius:12px 12px 0 0;padding:1.5rem 1.2rem 2.5rem;">
+      <div style="font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:1rem;color:#fff">📦 Buyurtmani tasdiqlash</div>
+      <div style="background:#111;border:1px solid #2a2a2a;padding:.9rem;margin-bottom:1rem;border-radius:6px">
+        ${items.map(i=>`
+          <div style="display:flex;justify-content:space-between;padding:.28rem 0;font-size:.83rem;color:#ccc;border-bottom:1px solid #222">
+            <span>${i.emoji} ${i.name} ×${i.qty}</span>
+            <span style="color:#ff9000;font-weight:600">${fmtPrice(i.price*i.qty)}</span>
+          </div>`).join('')}
+        ${zone ? `<div style="display:flex;justify-content:space-between;padding:.28rem 0;font-size:.83rem;color:#888;border-bottom:1px solid #222"><span>🚚 ${zone.name}</span><span>${fmtPrice(deliveryPrice)}</span></div>` : ''}
+        ${address ? `<div style="font-size:.75rem;color:#666;padding:.25rem 0;border-bottom:1px solid #222">📍 ${address}</div>` : ''}
+        <div style="display:flex;justify-content:space-between;padding:.5rem 0 0;font-size:.95rem;font-weight:700;color:#fff">
+          <span>JAMI:</span><span style="color:#ff9000">${fmtPrice(total)}</span>
+        </div>
+        <div style="font-size:.78rem;color:#888;margin-top:.25rem">${payLabels2[payMethod]||payMethod}${nasiyaMonths?' — '+nasiyaMonths+' oy':''}</div>
+      </div>
+      <button onclick="confirmOrderModal()" style="width:100%;background:#ff9000;color:#000;border:none;padding:1rem;font-size:.95rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;border-radius:6px;margin-bottom:.6rem">✅ Tasdiqlash</button>
+      <button onclick="cancelOrderModal()" style="width:100%;background:transparent;color:#888;border:1px solid #333;padding:.8rem;font-size:.85rem;cursor:pointer;border-radius:6px">Bekor qilish</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function goPage(name) {
+  document.querySelectorAll('#shop-wrap .page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const pg = document.getElementById('page-'+name);
+  const nv = document.getElementById('nav-'+name);
+  if(pg) pg.classList.add('active');
+  if(nv) nv.classList.add('active');
+  if(name==='cart') renderCart();
+}
+
+function openSupport() {
+  if(tg) tg.openTelegramLink('https://t.me/'+store.settings.support.replace('@',''));
+  else showToast('Qo\'llab-quvvatlash: '+store.settings.support);
+}
+
+// ════════════════════════════════
+//  ADMIN ACCESS
+// ════════════════════════════════
+function getTgUserId() {
+  try {
+    // Telegram WebApp - user.id har doim number
+    const uid = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+    return uid ? Number(uid) : null;
+  } catch(e) { return null; }
+}
+
+function enterAdmin() {
+  const uid = getTgUserId();
+  // Agar admin ID bo'lsa — PIN so'ramasdan to'g'ri kir
+  if(uid && ADMIN_TG_IDS.includes(uid)) {
+    document.getElementById('shop-wrap').style.display = 'none';
+    document.getElementById('admin-login').classList.remove('show');
+    document.getElementById('admin-panel').classList.add('show');
+    renderDashboard();
+    document.getElementById('adm-date').textContent = new Date().toLocaleDateString('uz-UZ',{weekday:'short',day:'numeric',month:'short'});
+    return;
+  }
+  // Boshqalar uchun PIN
+  document.getElementById('shop-wrap').style.display = 'none';
+  document.getElementById('admin-login').classList.add('show');
+  document.getElementById('pin-field').value = '';
+  document.getElementById('pin-error').textContent = '';
+  setTimeout(()=>document.getElementById('pin-field').focus(), 300);
+}
+
+function checkPin() {
+  const val = document.getElementById('pin-field').value;
+  if(val === store.settings.pin) {
+    document.getElementById('admin-login').classList.remove('show');
+    document.getElementById('admin-panel').classList.add('show');
+    renderDashboard();
+    document.getElementById('adm-date').textContent = new Date().toLocaleDateString('uz-UZ',{weekday:'short',day:'numeric',month:'short'});
+  } else {
+    document.getElementById('pin-error').textContent = '❌ PIN noto\'g\'ri';
+    document.getElementById('pin-field').value = '';
+  }
+}
+
+function exitAdmin() {
+  document.getElementById('admin-login').classList.remove('show');
+  document.getElementById('admin-panel').classList.remove('show');
+  document.getElementById('shop-wrap').style.display = 'block';
+}
+
+// ════════════════════════════════
+//  ADMIN NAVIGATION
+// ════════════════════════════════
+const admTitles = {
+  dashboard:'Dashboard <em>paneli</em>',
+  delivery:'Yetkazib berish <em>zonalari</em>',
+  reviews:'Izohlar <em>boshqaruvi</em>',
+  orders:'Buyurtmalar <em>ro\'yxati</em>',
+  products:'Mahsulotlar <em>katalogi</em>',
+  categories:'Kategoriyalar',
+  customers:'Mijozlar <em>bazasi</em>',
+  settings:'Sozlamalar'
+};
+function admGoPage(name, el) {
+  document.querySelectorAll('.adm-page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.adm-link').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.adm-bnav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('adm-page-'+name).classList.add('active');
+  if(el) el.classList.add('active');
+  // Pastki navda ham active qil
+  const bnav = document.getElementById('bnav-'+name);
+  if(bnav) bnav.classList.add('active');
+  document.getElementById('adm-topbar-title').innerHTML = admTitles[name]||name;
+  if(name==='dashboard') renderDashboard();
+  else if(name==='orders') renderOrders();
+  else if(name==='products') renderAdmProducts();
+  else if(name==='categories') renderCategories();
+  else if(name==='customers') renderCustomers();
+  else if(name==='settings') loadSettings();
+  else if(name==='delivery') renderDeliveryZones();
+  // Mobile: sahifa tepasiga scroll
+  window.scrollTo(0,0);
+}
+
+// ════════════════════════════════
+//  DASHBOARD
+// ════════════════════════════════
+function renderDashboard() {
+  const today = new Date().toISOString().split('T')[0];
+  const todayOrd = store.orders.filter(o=>o.date===today);
+  const todayRev = todayOrd.reduce((s,o)=>s+o.total,0);
+  const delivered = store.orders.filter(o=>o.status==='delivered').length;
+  document.getElementById('ds-orders').textContent = todayOrd.length;
+  document.getElementById('ds-revenue').textContent = todayRev.toLocaleString('uz-UZ');
+  document.getElementById('ds-delivered').textContent = delivered;
+  document.getElementById('ds-products').textContent = store.products.length;
+
+  // Recent orders
+  document.getElementById('ds-recent-tbody').innerHTML = store.orders.slice(0,5).map(o=>`
+    <tr>
+      <td style="color:var(--hint)">#${o.id}</td>
+      <td>${o.customerName}</td>
+      <td style="color:var(--accent2)">${fmtPrice(o.total)}</td>
+      <td><span class="sdot ${o.status}">${stLabel(o.status)}</span></td>
+    </tr>
+  `).join('');
+
+  // Top products
+  const sm = {};
+  store.orders.filter(o=>o.status!=='cancelled').forEach(o=>{
+    o.items.forEach(i=>{ if(!sm[i.id]) sm[i.id]={name:i.name,emoji:i.emoji,qty:0,rev:0}; sm[i.id].qty+=i.qty; sm[i.id].rev+=i.price*i.qty; });
+  });
+  const top = Object.values(sm).sort((a,b)=>b.qty-a.qty).slice(0,5);
+  document.getElementById('ds-top-tbody').innerHTML = top.map(p=>`
+    <tr><td>${p.emoji} ${p.name}</td><td style="color:var(--green)">${p.qty} ta</td><td style="color:var(--accent2)">${fmtPrice(p.rev)}</td></tr>
+  `).join('') || '<tr><td colspan="3" style="color:var(--hint);text-align:center;padding:1rem">—</td></tr>';
+
+  // Weekly chart
+  const days = ['Ya','Du','Se','Ch','Pa','Ju','Sh'];
+  const now = new Date();
+  const wd = [];
+  let wRev=0, wOrd=0;
+  for(let i=6;i>=0;i--){
+    const d = new Date(now-i*86400000);
+    const ds = d.toISOString().split('T')[0];
+    const dOrd = store.orders.filter(o=>o.date===ds);
+    const rev = dOrd.reduce((s,o)=>s+o.total,0);
+    wd.push({day:days[d.getDay()],rev,cnt:dOrd.length,isToday:i===0});
+    wRev+=rev; wOrd+=dOrd.length;
+  }
+  document.getElementById('ds-week-rev').textContent = fmtPrice(wRev);
+  document.getElementById('ds-week-ord').textContent = wOrd+' ta';
+  const maxR = Math.max(...wd.map(d=>d.rev),1);
+  document.getElementById('ds-week-chart').innerHTML = wd.map(d=>`
+    <div class="wcb ${d.isToday?'today':''}" style="height:${Math.round((d.rev/maxR)*70)}px;min-height:4px" title="${d.day}: ${fmtPrice(d.rev)}"></div>
+  `).join('');
+  document.getElementById('ds-week-labels').innerHTML = wd.map(d=>`<div class="wlb">${d.day}</div>`).join('');
+}
+
+// ════════════════════════════════
+//  ORDERS
+// ════════════════════════════════
+let ordFilter = {q:'',status:''};
+let currentOrderId = null;
+
+function renderOrders() {
+  let list = [...store.orders];
+  if(ordFilter.q){ const q=ordFilter.q.toLowerCase(); list=list.filter(o=>o.customerName.toLowerCase().includes(q)||String(o.id).includes(q)); }
+  if(ordFilter.status) list=list.filter(o=>o.status===ordFilter.status);
+  document.getElementById('orders-count').textContent = list.length+' ta';
+  document.getElementById('orders-tbody').innerHTML = list.length ? list.map(o=>`
+    <tr>
+      <td style="color:var(--gold);font-weight:500">#${o.id}</td>
+      <td>${o.customerName}<br><span style="font-size:.68rem;color:var(--hint)">${o.tgId}</span></td>
+      <td style="font-size:.73rem;color:var(--hint)">${o.items.length} ta</td>
+      <td style="color:var(--accent2)">${fmtPrice(o.total)}</td>
+      <td style="color:var(--hint);font-size:.73rem">${o.date}</td>
+      <td><span class="sdot ${o.status}">${stLabel(o.status)}</span></td>
+      <td><button class="btn btn-ghost btn-sm" onclick="viewOrder(${o.id})">Ko'rish</button></td>
+    </tr>
+  `).join('') : '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--hint)">Buyurtma topilmadi</td></tr>';
+}
+function filterOrders(q){ ordFilter.q=q; renderOrders(); }
+function filterOrderStatus(s){ ordFilter.status=s; renderOrders(); }
+
+function viewOrder(id) {
+  currentOrderId = id;
+  const o = store.orders.find(x=>x.id===id);
+  if(!o) return;
+  document.getElementById('order-detail-body').innerHTML = `
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
+      <div><div class="adm-stat-label">#ID</div><div style="color:var(--gold)">#${o.id}</div></div>
+      <div><div class="adm-stat-label">Mijoz</div><div>${o.customerName}</div></div>
+      <div><div class="adm-stat-label">Telegram</div><div style="color:var(--hint)">${o.tgId}</div></div>
+      <div><div class="adm-stat-label">Sana</div><div>${o.date}</div></div>
+      <div><div class="adm-stat-label">Holat</div><span class="sdot ${o.status}">${stLabel(o.status)}</span></div>
+    </div>
+    ${o.items.map(i=>`
+      <div style="display:flex;align-items:center;gap:.8rem;padding:.6rem 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:1.3rem">${i.emoji}</span>
+        <div style="flex:1"><div style="font-size:.83rem">${i.name}</div><div style="font-size:.72rem;color:var(--hint)">${fmtPrice(i.price)} × ${i.qty}</div></div>
+        <div style="color:var(--accent2)">${fmtPrice(i.price*i.qty)}</div>
+      </div>
+    `).join('')}
+    <div style="display:flex;justify-content:flex-end;padding-top:.8rem">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.25rem;color:var(--accent2)">Jami: ${fmtPrice(o.total)}</div>
+    </div>
+    ${o.paymentMethod ? '<div style="margin-top:.6rem;font-size:.78rem;color:var(--hint)">💳 To\'lov: '+payMethodLabel[o.paymentMethod]+'</div>' : ''}
+    ${o.nasiyaMonths ? '<div style="font-size:.78rem;color:#7b2ff7;margin-top:.2rem;font-weight:600">🟣 Uzum Nasiya: '+o.nasiyaMonths+' oy bo\'lib to\'lash</div>' : ''}
+    ${o.address ? '<div style="font-size:.78rem;color:var(--hint);margin-top:.3rem">📍 '+o.address+'</div>' : ''}
+    ${o.receiverName ? '<div style="font-size:.78rem;color:var(--hint);margin-top:.3rem">📦 Qabul: '+o.receiverName+' / '+o.receiverPhone+'</div>' : ''}
+  `;
+  openModal('modal-order');
+}
+
+function updateOrderStatus(status) {
+  const o = store.orders.find(x=>x.id===currentOrderId);
+  if(!o) return;
+  o.status = status;
+  saveStore();
+  sendStatusNotification(o, status);
+  closeModal('modal-order');
+  renderOrders();
+  showToast('✓ Holat yangilandi');
+}
+
+async function sendStatusNotification(order, status) {
+  const token = store.settings.botToken;
+  const userId = order.tgId && order.tgId.startsWith('@user_') ? order.tgId.replace('@user_','') : null;
+  if(!token || !userId) return;
+  const statusMsg = {
+    processing: '⏳ Buyurtmangiz saralanmoqda! Tez orada yig\'iladi.',
+    confirmed: '✅ Buyurtmangiz tasdiqlandi! Tez orada yo\'lga chiqamiz.',
+    shipping: '🚚 Buyurtmangiz yo\'lda! Yaqin orada yetib boradi.',
+    delivered: '📦 Buyurtmangiz yetkazildi! Xaridingiz uchun rahmat 🔥',
+    cancelled: '❌ Afsuski, buyurtmangiz bekor qilindi. Aloqa uchun: ' + store.settings.support
+  }[status];
+  if(!statusMsg) return;
+  const nasiyaInfo = order.nasiyaMonths ? `\n🟣 Uzum Nasiya: ${order.nasiyaMonths} oy bo'lib to'lash` : '';
+  const text = `🛍️ *VelvetBox — Buyurtma #${order.id}*\n\n${statusMsg}${nasiyaInfo}`;
+  try {
+    await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({chat_id: userId, text, parse_mode:'Markdown'})
+    });
+  } catch(e) { console.log('Status xabar xatolik:', e); }
+}
+
+function setQuickMsg(text) {
+  const el = document.getElementById('admin-msg-input');
+  if(el) { el.value = text; el.focus(); }
+}
+
+async function sendDirectMessage() {
+  const o = store.orders.find(x=>x.id===currentOrderId);
+  if(!o) return;
+  const msg = document.getElementById('admin-msg-input')?.value.trim();
+  if(!msg) { showToast('⚠️ Xabar yozing'); return; }
+  const token = store.settings.botToken;
+  const userId = o.tgId && o.tgId.startsWith('@user_') ? o.tgId.replace('@user_','') : null;
+  if(!token || !userId) {
+    // Fallback: Telegram chatni och
+    openCustomerChat();
+    return;
+  }
+  const text = `🛍️ *VelvetBox — Buyurtma #${o.id}*\n\n${msg}`;
+  try {
+    const res = await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({chat_id: userId, text, parse_mode:'Markdown'})
+    });
+    const data = await res.json();
+    if(data.ok) {
+      showToast('✅ Xabar yuborildi!');
+      document.getElementById('admin-msg-input').value = '';
+    } else {
+      // If bot can't message, try Telegram link
+      showToast('⚠️ Bot orqali yuborib bo\'lmadi. Telegram orqali ochiladi...');
+      setTimeout(() => openCustomerChat(), 1000);
+    }
+  } catch(e) {
+    showToast('⚠️ Xabar yuborishda xatolik');
+  }
+}
+
+// ════════════════════════════════
+//  PRODUCTS (ADMIN)
+// ════════════════════════════════
+let admProdFilter = '';
+let editProdId = null;
+
+function renderAdmProducts() {
+  let list = [...store.products];
+  if(admProdFilter) list = list.filter(p=>p.name.toLowerCase().includes(admProdFilter.toLowerCase()));
+  document.getElementById('adm-products-count').textContent = list.length+' ta';
+
+  // Kategoriya yo'q bo'lsa ogohlantirish
+  const noCatWarn = document.getElementById('no-cat-warning');
+  if(noCatWarn) noCatWarn.style.display = store.categories.length===0 ? 'block' : 'none';
+
+  document.getElementById('adm-products-tbody').innerHTML = list.length ? list.map(p=>`
+    <div style="display:flex;align-items:center;gap:.8rem;padding:.85rem 1rem;border-bottom:1px solid var(--border)">
+      <div style="width:54px;height:54px;background:var(--surface);border:1px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">
+        ${p.img ? `<img src="${p.img}" style="width:54px;height:54px;object-fit:cover;border-radius:4px">` : `<span style="font-size:1.6rem">${p.emoji}</span>`}
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:.88rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
+        <div style="font-size:.72rem;color:var(--hint);margin-top:.1rem">${p.cat}</div>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-top:.25rem">
+          <span style="color:var(--accent);font-weight:700;font-size:.85rem">${fmtPrice(p.price)}</span>
+          ${p.badge ? `<span class="badge badge-${p.badge==='Yangi'?'new':p.badge==='Top'?'top':'sale'}" style="font-size:.58rem">${p.badge}</span>` : ''}
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.35rem;flex-shrink:0">
+        <button class="btn btn-ghost btn-sm" onclick="openProductModal(${p.id})" style="padding:.4rem .7rem;font-size:.75rem">✏️ Tahrir</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteProd(${p.id})" style="padding:.4rem .7rem;font-size:.75rem;border-color:#c9556a;color:#c9556a">🗑️ O'chir</button>
+      </div>
+    </div>
+  `).join('') : '<div style="text-align:center;padding:2rem;color:var(--hint)">Mahsulot topilmadi</div>';
+}
+function filterAdmProducts(q){ admProdFilter=q; renderAdmProducts(); }
+
+function openProductModal(id) {
+  // Avval kategoriya bormi tekshir
+  if(!id && store.categories.length === 0) {
+    showToast('⚠️ Avval kategoriya qo\'shing!');
+    admGoPage('categories', document.querySelector('.adm-link[onclick*="categories"]'));
+    return;
+  }
+  editProdId = id||null;
+  document.getElementById('prod-modal-title').textContent = id?'Mahsulotni tahrirlash':'Yangi mahsulot';
+  // Fill category select
+  const catSel = document.getElementById('p-cat');
+  catSel.innerHTML = store.categories.map(c=>`<option value="${c.name}">${c.emoji} ${c.name}</option>`).join('');
+  if(id) {
+    const p = store.products.find(x=>x.id===id);
+    if(!p) return;
+    document.getElementById('p-emoji').value = p.emoji;
+    document.getElementById('p-name').value = p.name;
+    document.getElementById('p-desc').value = p.desc;
+    document.getElementById('p-price').value = p.price;
+    catSel.value = p.cat;
+    document.getElementById('p-badge').value = p.badge||'';
+    // Mavjud rasm
+    if(p.img) {
+      currentProdImg = p.img;
+      document.getElementById('prod-img-preview').src = p.img;
+      document.getElementById('prod-img-upload-area').style.display='none';
+      document.getElementById('prod-img-preview-area').style.display='block';
+    }
+  } else {
+    ['p-emoji','p-name','p-desc','p-price'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('p-badge').value='';
+  }
+  // Rasm reset
+  currentProdImg = null;
+  document.getElementById('prod-img-upload-area').style.display='flex';
+  document.getElementById('prod-img-preview-area').style.display='none';
+  document.getElementById('p-img-file').value='';
+  openModal('modal-product');
+}
+
+function saveProduct() {
+  const emoji = document.getElementById('p-emoji').value.trim()||'📦';
+  const name = document.getElementById('p-name').value.trim();
+  const desc = document.getElementById('p-desc').value.trim();
+  const price = parseInt(document.getElementById('p-price').value);
+  const cat = document.getElementById('p-cat').value;
+  const badge = document.getElementById('p-badge').value||null;
+  if(!name||!price){ showToast('⚠️ Nom va narxni kiriting'); return; }
+  const img = currentProdImg || null;
+  if(editProdId) {
+    const idx = store.products.findIndex(x=>x.id===editProdId);
+    if(idx>-1) store.products[idx] = {...store.products[idx],emoji,name,desc,price,cat,badge,img};
+  } else {
+    store.products.push({id:store.nextProdId++,emoji,name,desc,price,cat,badge,img});
+  }
+  saveStore();
+  closeModal('modal-product');
+  renderAdmProducts();
+  buildChips(); renderShopProducts(); // shop ni ham yangilash
+  showToast(editProdId?'✓ Mahsulot yangilandi':'✓ Mahsulot qo\'shildi');
+}
+
+function deleteProd(id) {
+  if(!confirm('Mahsulotni o\'chirishni tasdiqlaysizmi?')) return;
+  store.products = store.products.filter(x=>x.id!==id);
+  saveStore();
+  renderAdmProducts();
+  buildChips(); renderShopProducts();
+  showToast('🗑️ Mahsulot o\'chirildi');
+}
+
+// ════════════════════════════════
+//  CATEGORIES
+// ════════════════════════════════
+function renderCategories() {
+  document.getElementById('categories-tbody').innerHTML = store.categories.map(c=>`
+    <tr>
+      <td style="font-size:1.3rem">${c.emoji}</td>
+      <td style="font-weight:500">${c.name}</td>
+      <td style="color:var(--hint)">${store.products.filter(p=>p.cat===c.name).length} ta</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteCat(${c.id})">🗑️</button></td>
+    </tr>
+  `).join('');
+}
+function openCategoryModal() {
+  document.getElementById('c-emoji').value='';
+  document.getElementById('c-name').value='';
+  openModal('modal-category');
+}
+function saveCategory() {
+  const emoji = document.getElementById('c-emoji').value.trim()||'📁';
+  const name = document.getElementById('c-name').value.trim();
+  if(!name){ showToast('⚠️ Nom kiriting'); return; }
+  store.categories.push({id:store.nextCatId++,emoji,name});
+  saveStore();
+  closeModal('modal-category');
+  renderCategories();
+  buildChips();
+  showToast('✓ Kategoriya qo\'shildi');
+}
+function deleteCat(id) {
+  if(!confirm('Kategoriyani o\'chirishni tasdiqlaysizmi?')) return;
+  store.categories = store.categories.filter(x=>x.id!==id);
+  saveStore();
+  renderCategories();
+  buildChips();
+  showToast('🗑️ Kategoriya o\'chirildi');
+}
+
+// ════════════════════════════════
+//  CUSTOMERS
+// ════════════════════════════════
+let custFilter = '';
+function renderCustomers() {
+  let list = [...store.customers];
+  if(custFilter) list = list.filter(c=>c.name.toLowerCase().includes(custFilter.toLowerCase())||c.tgId.includes(custFilter));
+  document.getElementById('customers-count').textContent = list.length+' ta';
+  document.getElementById('customers-tbody').innerHTML = list.map(c=>`
+    <tr>
+      <td style="font-weight:500">${c.name}</td>
+      <td style="color:var(--hint);font-size:.78rem">${c.tgId}</td>
+      <td style="color:var(--gold)">${c.orders} ta</td>
+      <td style="color:var(--accent2)">${fmtPrice(c.total)}</td>
+      <td style="color:var(--hint);font-size:.76rem">${c.lastActive}</td>
+    </tr>
+  `).join('');
+}
+function filterCustomers(q){ custFilter=q; renderCustomers(); }
+
+// ════════════════════════════════
+//  SETTINGS
+// ════════════════════════════════
+function loadSettings() {
+  const s = store.settings;
+  document.getElementById('s-shopname').value = s.shopName;
+  document.getElementById('s-phone').value = s.phone;
+  document.getElementById('s-support').value = s.support;
+  document.getElementById('s-promo').value = s.promo;
+  document.getElementById('s-discount').value = s.discount;
+  document.getElementById('s-pin').value = '';
+  // Token saqlangan bo'lsa placeholder sifatida ko'rsat
+  const tokenInput = document.getElementById('s-bottoken');
+  tokenInput.value = '';
+  tokenInput.placeholder = s.botToken ? '✅ Token saqlangan — yangilash uchun yozing' : '123456:ABC-DEF...';
+  document.getElementById('s-chatid').value = s.chatId||'';
+  document.getElementById('s-click-id').value = s.clickId||'';
+  document.getElementById('s-payme-id').value = s.paymeId||'';
+  document.getElementById('s-card').value = s.card||'';
+}
+function saveSettings() {
+  const newPin = document.getElementById('s-pin').value.trim();
+  store.settings = {
+    shopName: document.getElementById('s-shopname').value,
+    phone: document.getElementById('s-phone').value,
+    support: document.getElementById('s-support').value,
+    promo: document.getElementById('s-promo').value,
+    discount: parseInt(document.getElementById('s-discount').value)||20,
+    pin: (newPin.length===6 && /^\d+$/.test(newPin)) ? newPin : store.settings.pin,
+    botToken: document.getElementById('s-bottoken').value.trim() || store.settings.botToken,
+    chatId: document.getElementById('s-chatid').value.trim() || store.settings.chatId,
+    clickId: document.getElementById('s-click-id').value.trim(),
+    paymeId: document.getElementById('s-payme-id').value.trim(),
+    card: document.getElementById('s-card').value.trim()
+  };
+  saveStore();
+  // Shopni yangilash
+  document.getElementById('shop-phone').textContent = store.settings.phone;
+  document.getElementById('promo-text').textContent = 'Birinchi buyurtma — '+store.settings.discount+'% chegirma';
+  document.getElementById('promo-code').textContent = store.settings.promo;
+  showToast('✓ Sozlamalar saqlandi' + (newPin.length===6?'. PIN yangilandi':''));
+}
+
+// ════════════════════════════════
+//  RASM YUKLASH
+// ════════════════════════════════
+let currentProdImg = null;
+
+function handleProdImg(input) {
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    currentProdImg = e.target.result;
+    document.getElementById('prod-img-preview').src = currentProdImg;
+    document.getElementById('prod-img-upload-area').style.display = 'none';
+    document.getElementById('prod-img-preview-area').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeProdImg(e) {
+  e.stopPropagation();
+  currentProdImg = null;
+  document.getElementById('prod-img-upload-area').style.display = 'flex';
+  document.getElementById('prod-img-preview-area').style.display = 'none';
+  document.getElementById('p-img-file').value = '';
+}
+
+// ════════════════════════════════
+//  REYTING / IZOHLAR
+// ════════════════════════════════
+let currentDetailId = null;
+let currentReviewStar = 0;
+
+function getProdRating(id) {
+  if(!store.reviews) store.reviews = [];
+  const r = store.reviews.filter(x=>x.prodId===id);
+  if(!r.length) return {avg:0, count:0};
+  const avg = (r.reduce((s,x)=>s+x.stars,0)/r.length).toFixed(1);
+  return {avg, count:r.length};
+}
+
+function setReviewStar(n) {
+  currentReviewStar = n;
+  document.querySelectorAll('#review-star-input .star').forEach((s,i)=>{
+    s.classList.toggle('filled', i<n);
+  });
+}
+
+function openProdDetail(id) {
+  if(!store.reviews) store.reviews = [];
+  currentDetailId = id;
+  currentReviewStar = 0;
+  document.querySelectorAll('#review-star-input .star').forEach(s=>s.classList.remove('filled'));
+  document.getElementById('review-text-input').value = '';
+  const p = store.products.find(x=>x.id===id);
+  if(!p) return;
+  // Media
+  const media = document.getElementById('prod-detail-media');
+  media.innerHTML = p.img
+    ? `<img class="prod-detail-img" src="${p.img}" alt="${p.name}">`
+    : `<div class="prod-detail-emoji-bg">${p.emoji}</div>`;
+  document.getElementById('pd-name').textContent = p.name;
+  document.getElementById('pd-desc').textContent = p.desc;
+  document.getElementById('pd-price').textContent = fmtPrice(p.price);
+  // Rating
+  const avg = getProdRating(id);
+  const ratingEl = document.getElementById('pd-rating-summary');
+  ratingEl.innerHTML = avg.count>0
+    ? `<span class="rating-avg">★ ${avg.avg}</span><span class="rating-count">(${avg.count} ta izoh)</span>`
+    : '<span style="color:var(--hint);font-size:.75rem">Hali izoh yo\'q</span>';
+  // Reviews
+  const reviews = store.reviews.filter(x=>x.prodId===id).slice(-20).reverse();
+  document.getElementById('pd-reviews').innerHTML = reviews.length
+    ? reviews.map(r=>`
+        <div class="review-card">
+          <div class="review-author">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)} ${r.author}</div>
+          <div class="review-text">${r.text}</div>
+          ${r.reply ? `<div class="review-reply"><div class="review-reply-label">🛍️ Do'kon javobi</div>${r.reply}</div>` : ''}
+          <div class="review-date">${r.date}</div>
+        </div>`).join('')
+    : '<div style="color:var(--hint);font-size:.8rem;padding:.5rem 0">Hali izoh yo\'q</div>';
+  openModal('modal-prod-detail');
+}
+
+function submitReview() {
+  if(!currentReviewStar) { showToast('⚠️ Yulduz tanlang'); return; }
+  const text = document.getElementById('review-text-input').value.trim();
+  if(!text) { showToast('⚠️ Izoh yozing'); return; }
+  // Faqat mahsulot yetkazilgan buyurtmasi bor mijoz izoh qo'ya oladi
+  const userId = tg?.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : null;
+  const hasPurchased = store.orders.some(o =>
+    o.status === 'delivered' &&
+    o.tgId === '@user_' + userId &&
+    o.items.some(i => i.id === currentDetailId)
+  );
+  if(userId && !hasPurchased) {
+    showToast('⚠️ Faqat sotib olgan mijozlar izoh yoza oladi');
+    return;
+  }
+  if(!store.reviews) store.reviews = [];
+  const user = tg?.initDataUnsafe?.user;
+  const reviewId = Date.now();
+  store.reviews.push({
+    id: reviewId,
+    prodId: currentDetailId,
+    stars: currentReviewStar,
+    text,
+    author: user ? user.first_name : 'Mehmon',
+    tgUserId: userId || '',
+    date: new Date().toLocaleDateString('uz-UZ'),
+    reply: ''
+  });
+  saveStore();
+  showToast('✅ Izohingiz qo\'shildi!');
+  openProdDetail(currentDetailId);
+}
+
+// ════════════════════════════════
+//  YETKAZIB BERISH ZONALARI
+// ════════════════════════════════
+let selectedDeliveryZone = null;
+
+function renderDeliveryZones() {
+  if(!store.deliveryZones) store.deliveryZones = [];
+  document.getElementById('delivery-tbody').innerHTML = store.deliveryZones.length
+    ? store.deliveryZones.map(z=>`
+        <tr>
+          <td style="font-weight:500">${z.name}</td>
+          <td style="color:var(--accent2)">${fmtPrice(z.price)}</td>
+          <td style="color:var(--hint)">${z.time}</td>
+          <td><button class="btn btn-danger btn-sm" onclick="deleteDeliveryZone(${z.id})">🗑️</button></td>
+        </tr>`).join('')
+    : '<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--hint)">Zona qo\'shilmagan</td></tr>';
+}
+
+function openDeliveryModal() {
+  document.getElementById('dz-name').value='';
+  document.getElementById('dz-price').value='';
+  document.getElementById('dz-time').value='';
+  openModal('modal-delivery');
+}
+
+function saveDeliveryZone() {
+  const name = document.getElementById('dz-name').value.trim();
+  const price = parseInt(document.getElementById('dz-price').value)||0;
+  const time = document.getElementById('dz-time').value.trim();
+  if(!name){ showToast('⚠️ Zona nomini kiriting'); return; }
+  if(!store.deliveryZones) store.deliveryZones = [];
+  if(!store.nextDzId) store.nextDzId = 1;
+  store.deliveryZones.push({id:store.nextDzId++, name, price, time});
+  saveStore();
+  closeModal('modal-delivery');
+  renderDeliveryZones();
+  renderCartDelivery();
+  showToast('✓ Zona qo\'shildi');
+}
+
+function deleteDeliveryZone(id) {
+  if(!confirm('O\'chirishni tasdiqlaysizmi?')) return;
+  store.deliveryZones = store.deliveryZones.filter(z=>z.id!==id);
+  saveStore();
+  renderDeliveryZones();
+  renderCartDelivery();
+  showToast('🗑️ Zona o\'chirildi');
+}
+
+function renderCartDelivery() {
+  if(!store.deliveryZones) store.deliveryZones = [];
+  const el = document.getElementById('delivery-zones-list');
+  if(!el) return;
+  if(!store.deliveryZones.length) {
+    el.innerHTML = '<div style="color:var(--hint);font-size:.8rem;margin-bottom:.5rem">Yetkazib berish zonalari hali qo\'shilmagan</div>';
+    selectedDeliveryZone = null;
+    updateCartTotal();
+    return;
+  }
+  el.innerHTML = store.deliveryZones.map(z=>`
+    <div class="delivery-zone ${selectedDeliveryZone===z.id?'selected':''}" onclick="selectDelivery(${z.id})">
+      <div><div class="delivery-zone-name">${z.name}</div><div class="delivery-zone-time">⏱ ${z.time}</div></div>
+      <div class="delivery-zone-price">${fmtPrice(z.price)}</div>
+    </div>`).join('');
+}
+
+function selectDelivery(id) {
+  selectedDeliveryZone = id;
+  renderCartDelivery();
+  updateCartTotal();
+}
+
+function updateCartTotal() {
+  const items = Object.values(cart);
+  const itemsSum = items.reduce((s,i)=>s+i.price*i.qty,0);
+  const zone = store.deliveryZones?.find(z=>z.id===selectedDeliveryZone);
+  const deliveryPrice = zone ? zone.price : 0;
+  const total = itemsSum + deliveryPrice;
+  const itemsSumEl = document.getElementById('cart-items-sum');
+  const deliverySumEl = document.getElementById('cart-delivery-sum');
+  const totalEl = document.getElementById('cart-total-sum');
+  if(itemsSumEl) itemsSumEl.textContent = fmtPrice(itemsSum);
+  if(deliverySumEl) deliverySumEl.textContent = zone ? fmtPrice(deliveryPrice) : 'Tanlanmagan';
+  if(totalEl) totalEl.textContent = fmtPrice(total);
+}
+
+
+// ════════════════════════════════
+//  TO'LOV USULI
+// ════════════════════════════════
+let selectedPayment = 'cash';
+let selectedNasiyaMonths = 3;
+
+function selectPayment(method) {
+  selectedPayment = method;
+  ['cash','transfer','click','payme','nasiya'].forEach(m => {
+    const el = document.getElementById('pay-' + m);
+    if(el) el.classList.toggle('selected', m === method);
+  });
+  const linksEl = document.getElementById('online-pay-links');
+  if(!linksEl) return;
+  if(method === 'click' && store.settings.clickId) {
+    const total = Object.values(cart).reduce((s,i)=>s+i.price*i.qty,0);
+    linksEl.style.display = 'block';
+    linksEl.innerHTML = `<a class="payment-link-btn click-btn" href="https://my.click.uz/services/pay?service_id=${store.settings.clickId}&merchant_id=${store.settings.clickId}&amount=${total}" target="_blank">🔵 Click orqali to'lash — ${fmtPrice(total)}</a>`;
+  } else if(method === 'payme' && store.settings.paymeId) {
+    const total = Object.values(cart).reduce((s,i)=>s+i.price*i.qty,0);
+    const amountTiyin = total * 100;
+    linksEl.style.display = 'block';
+    linksEl.innerHTML = `<a class="payment-link-btn payme-btn" href="https://checkout.paycom.uz/${store.settings.paymeId}?amount=${amountTiyin}" target="_blank">🟢 Payme orqali to'lash — ${fmtPrice(total)}</a>`;
+  } else if(method === 'transfer' && store.settings.card) {
+    linksEl.style.display = 'block';
+    linksEl.innerHTML = `<div style="background:var(--surface);border:1px solid var(--border);padding:.8rem;font-size:.83rem;text-align:center">
+      <div style="color:var(--hint);font-size:.7rem;margin-bottom:.3rem">Karta raqami</div>
+      <div style="font-size:1.1rem;letter-spacing:.1em;color:var(--accent)">${store.settings.card}</div>
+      <div style="color:var(--hint);font-size:.7rem;margin-top:.3rem">To'lovdan keyin chekni adminga yuboring</div>
+    </div>`;
+  } else if(method === 'nasiya') {
+    renderNasiyaPlans();
+  } else {
+    linksEl.style.display = 'none';
+    linksEl.innerHTML = '';
+  }
+}
+
+function renderNasiyaPlans() {
+  const linksEl = document.getElementById('online-pay-links');
+  if(!linksEl) return;
+  const plans = [3, 6, 12];
+  linksEl.style.display = 'block';
+  linksEl.innerHTML = `
+    <div style="color:#7b2ff7;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;font-weight:700">🟣 Uzum Nasiya — Bo'lib to'lash muddati</div>
+    <div class="nasiya-plans">
+      ${plans.map(m => `
+        <div class="nasiya-plan ${selectedNasiyaMonths===m?'selected':''}" onclick="selectNasiyaPlan(${m})">
+          <div class="np-months">${m}</div>
+          <div class="np-label">oy</div>
+        </div>`).join('')}
+    </div>
+    <div style="background:rgba(123,47,247,.1);border:1px solid rgba(123,47,247,.3);padding:.7rem .9rem;margin-top:.6rem;border-radius:4px;font-size:.78rem;color:#aaa;text-align:center">
+      📋 To'lov foizi va oylik miqdor rasmiylashtirishda Uzum tomonidan aniqlanadi
+    </div>
+  `;
+}
+
+function selectNasiyaPlan(months) {
+  selectedNasiyaMonths = months;
+  renderNasiyaPlans();
+}
+
+function renderNasiyaInfo(total) { return ''; }
+
+
+// ════════════════════════════════
+//  BUYURTMA FORMA
+// ════════════════════════════════
+function toggleReceiver(checked) {
+  document.getElementById('receiver-section').style.display = checked ? 'block' : 'none';
+}
+
+// ════════════════════════════════
+//  MENING BUYURTMALARIM (mijoz)
+// ════════════════════════════════
+function openMyOrders() {
+  const userId = tg?.initDataUnsafe?.user?.id ? '@user_' + tg.initDataUnsafe.user.id : null;
+  if(!userId) { showToast('Telegram orqali kiring'); return; }
+  const myOrders = store.orders.filter(o => o.tgId === userId);
+  document.getElementById('my-orders-count').textContent = myOrders.length + ' ta →';
+
+  // Modal yaratamiz
+  let modal = document.getElementById('my-orders-modal');
+  if(!modal) {
+    modal = document.createElement('div');
+    modal.id = 'my-orders-modal';
+    modal.style.cssText = 'position:fixed;inset:0;z-index:500;background:var(--bg);display:none;flex-direction:column;overflow-y:auto;';
+    document.body.appendChild(modal);
+  }
+  const stColors = {pending:'var(--gold)',confirmed:'#5c9cba',delivered:'var(--green)',cancelled:'var(--accent)'};
+  modal.innerHTML = `
+    <div style="position:sticky;top:0;background:rgba(10,6,8,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:.9rem 1rem;display:flex;align-items:center;gap:.8rem;z-index:10">
+      <button onclick="document.getElementById('my-orders-modal').style.display='none'" style="background:none;border:none;color:var(--hint);font-size:1.2rem;cursor:pointer">✕</button>
+      <span style="font-family:'Cormorant Garamond',serif;font-size:1.1rem">Mening buyurtmalarim</span>
+    </div>
+    <div style="padding:1rem">
+      ${myOrders.length ? myOrders.map(o => `
+        <div style="background:var(--card);border:1px solid var(--border);padding:.9rem;margin-bottom:.7rem">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+            <span style="color:var(--gold);font-weight:600">#${o.id}</span>
+            <span style="font-size:.75rem;color:${stColors[o.status]||'var(--hint)'}">${stLabel(o.status)}</span>
+          </div>
+          <div style="font-size:.8rem;color:var(--hint);margin-bottom:.4rem">${o.date} • ${o.items.length} ta mahsulot</div>
+          ${o.items.map(i=>`<div style="font-size:.82rem;padding:.25rem 0;border-bottom:1px solid var(--border)">${i.emoji} ${i.name} ×${i.qty} — ${fmtPrice(i.price*i.qty)}</div>`).join('')}
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.5rem">
+            <span style="font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--accent2)">${fmtPrice(o.total)}</span>
+            ${o.status === 'delivered' && !o.customerConfirmed ? `<button class="order-confirm-btn" onclick="customerConfirmDelivery(${o.id})">✅ Oldim, tasdiqlash</button>` : ''}
+            ${o.customerConfirmed ? '<span style="font-size:.72rem;color:var(--green)">✓ Tasdiqlangan</span>' : ''}
+          </div>
+        </div>
+      `).join('') : '<div style="text-align:center;padding:3rem;color:var(--hint)">Hali buyurtma yo\'q</div>'}
+    </div>
+  `;
+  modal.style.display = 'flex';
+}
+
+function customerConfirmDelivery(orderId) {
+  const o = store.orders.find(x=>x.id===orderId);
+  if(!o) return;
+  o.customerConfirmed = true;
+  saveStore();
+  showToast('✅ Tasdiqlandi! Izoh qoldirishingiz mumkin');
+  openMyOrders();
+  // Adminga xabar
+  sendAdminNotification(o, '✅ Mijoz buyurtmani qabul qilganini tasdiqladi!');
+}
+
+async function sendAdminNotification(order, msg) {
+  const token = store.settings.botToken;
+  const chatId = store.settings.chatId;
+  if(!token || !chatId) return;
+  const text = `${msg}\n\nBuyurtma #${order.id} | ${order.customerName}`;
+  try {
+    await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({chat_id: chatId, text, parse_mode:'Markdown'})
+    });
+  } catch(e) {}
+}
+
+// ════════════════════════════════
+//  ADMIN IZOHLAR
+// ════════════════════════════════
+let admReviewFilter = '';
+let admReviewStarFilter = '';
+
+function renderAdmReviews() {
+  if(!store.reviews) store.reviews = [];
+  let list = [...store.reviews].reverse();
+  if(admReviewFilter) {
+    const q = admReviewFilter.toLowerCase();
+    list = list.filter(r => r.text.toLowerCase().includes(q) || r.author.toLowerCase().includes(q));
+  }
+  if(admReviewStarFilter) {
+    list = list.filter(r => String(r.stars) === admReviewStarFilter);
+  }
+  const el = document.getElementById('adm-reviews-list');
+  if(!el) return;
+  if(!list.length) {
+    el.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--hint)">Izoh topilmadi</div>';
+    return;
+  }
+  el.innerHTML = list.map(r => {
+    const prod = store.products.find(p=>p.id===r.prodId);
+    return `
+    <div class="review-adm-card">
+      <div class="review-adm-head">
+        <div>
+          <div class="review-adm-prod">${prod ? prod.emoji+' '+prod.name : 'Mahsulot #'+r.prodId}</div>
+          <div class="review-adm-meta">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)} &nbsp;${r.author} &nbsp;•&nbsp; ${r.date}</div>
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="deleteAdmReview(${r.id||0},'${r.date}',${r.prodId})">🗑️</button>
+      </div>
+      <div class="review-adm-text">${r.text}</div>
+      ${r.reply ? `<div class="review-adm-reply"><div class="review-adm-reply-label">Javobingiz:</div>${r.reply}</div>` : ''}
+      <textarea class="review-reply-input" id="reply-${r.id||r.date}" placeholder="Javob yozing...">${r.reply||''}</textarea>
+      <div style="display:flex;gap:.4rem;margin-top:.4rem">
+        <button class="btn btn-primary btn-sm" onclick="saveAdmReviewReply(${r.id||0},'${r.date}',${r.prodId})">💬 Javob saqlash</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterAdmReviews(q) { admReviewFilter = q; renderAdmReviews(); }
+function filterAdmReviewStars(s) { admReviewStarFilter = s; renderAdmReviews(); }
+
+function saveAdmReviewReply(id, date, prodId) {
+  if(!store.reviews) return;
+  const key = id || date;
+  const r = store.reviews.find(x => (x.id && x.id===id) || (!x.id && x.date===date && x.prodId===prodId));
+  if(!r) { showToast('Izoh topilmadi'); return; }
+  const inputEl = document.getElementById('reply-' + (id||date));
+  if(!inputEl) return;
+  r.reply = inputEl.value.trim();
+  saveStore();
+  renderAdmReviews();
+  showToast('✓ Javob saqlandi');
+}
+
+function deleteAdmReview(id, date, prodId) {
+  if(!confirm('Izohni o\'chirasizmi?')) return;
+  if(!store.reviews) return;
+  store.reviews = store.reviews.filter(x => !((x.id && x.id===id) || (!x.id && x.date===date && x.prodId===prodId)));
+  saveStore();
+  renderAdmReviews();
+  showToast('🗑️ Izoh o\'chirildi');
+}
+
+// ════════════════════════════════
+//  XARITA
+// ════════════════════════════════
+function openMapModal() {
+  document.getElementById('map-modal').classList.add('open');
+}
+function closeMapModal() {
+  document.getElementById('map-modal').classList.remove('open');
+}
+function searchMapAddress() {
+  const q = document.getElementById('map-search-input').value.trim();
+  if(!q) return;
+  const encoded = encodeURIComponent(q + ', Ozbekiston');
+  document.getElementById('map-frame').src = 'https://yandex.uz/map-widget/v1/?text=' + encoded + '&lang=uz_UZ&z=14';
+  document.getElementById('map-selected-addr').textContent = '📍 ' + q;
+}
+function confirmMapAddress() {
+  const addr = document.getElementById('map-selected-addr').textContent.replace('📍 ','');
+  if(addr === 'Xaritadan joy tanlang') { showToast('⚠️ Avval manzil qidiring'); return; }
+  document.getElementById('delivery-address').value = addr;
+  closeMapModal();
+  showToast('✓ Manzil tanlandi');
+}
+
+// ════════════════════════════════
+//  BUYURTMA CHEKI
+// ════════════════════════════════
+const payMethodLabel = {cash:'💵 Naqd pul',transfer:'🏦 Otkazma',click:'🔵 Click',payme:'🟢 Payme',nasiya:'🟣 Uzum Nasiya'};
+
+function showOrderReceipt(order) {
+  const zone = store.deliveryZones?.find(z=>z.id===order.deliveryZoneId);
+  const itemsSum = order.items.reduce((s,i)=>s+i.price*i.qty,0);
+  const pLabel = {cash:'💵 Naqd pul',transfer:'🏦 Karta o\'tkazma',click:'🔵 Click',payme:'🟢 Payme',nasiya:'🟣 Uzum Nasiya'}[order.paymentMethod]||'—';
+
+  // Sana va vaqtni chiroyli formatlash
+  const orderDate = order.ts ? new Date(order.ts) : new Date(order.date);
+  const dateStr = orderDate.toLocaleDateString('uz-UZ', {day:'2-digit',month:'2-digit',year:'numeric'});
+  const timeStr = orderDate.toLocaleTimeString('uz-UZ', {hour:'2-digit',minute:'2-digit'});
+  const fullDateTime = dateStr + ' · ' + timeStr;
+
+  document.getElementById('receipt-body').innerHTML = `
+    <div class="receipt-divider">Buyurtma</div>
+    <div class="receipt-row">
+      <span style="color:#888;font-size:.72rem">Buyurtma #</span>
+      <span style="color:#ff9000;font-weight:800;font-size:.95rem">#${order.id}</span>
+    </div>
+    <div class="receipt-row">
+      <span style="color:#888;font-size:.72rem">Mijoz</span>
+      <span style="font-weight:600">${order.customerName}</span>
+    </div>
+    ${order.phone ? `<div class="receipt-row"><span style="color:#888;font-size:.72rem">Telefon</span><span>${order.phone}</span></div>` : ''}
+    <div class="receipt-row">
+      <span style="color:#888;font-size:.72rem">Sana</span>
+      <span>${fullDateTime}</span>
+    </div>
+    <div class="receipt-row">
+      <span style="color:#888;font-size:.72rem">To'lov</span>
+      <span>${pLabel}${order.nasiyaMonths?' ('+order.nasiyaMonths+' oy)':''}</span>
+    </div>
+
+    <div class="receipt-divider">Mahsulotlar</div>
+    ${order.items.map(i=>`
+      <div class="receipt-row">
+        <span>${i.emoji} ${i.name} <span style="color:#aaa;font-size:.75rem">×${i.qty}</span></span>
+        <span style="font-weight:600">${fmtPrice(i.price*i.qty)}</span>
+      </div>`).join('')}
+
+    <div class="receipt-divider">Hisob</div>
+    <div class="receipt-row">
+      <span style="color:#888">Mahsulotlar:</span>
+      <span>${fmtPrice(itemsSum)}</span>
+    </div>
+    ${zone ? `<div class="receipt-row"><span style="color:#888">Yetkazish (${zone.name}):</span><span>${fmtPrice(zone.price)}</span></div>` : ''}
+    ${order.address ? `<div class="receipt-row"><span style="color:#888;font-size:.72rem">📍 Manzil:</span><span style="max-width:170px;text-align:right;font-size:.76rem">${order.address}</span></div>` : ''}
+    <div class="receipt-row total">
+      <span>JAMI TO'LOV:</span>
+      <span>${fmtPrice(order.total)}</span>
+    </div>
+  `;
+  document.getElementById('receipt-modal').classList.add('open');
+}
+
+function getReceiptHTML(forPrint) {
+  const body = document.getElementById('receipt-body').innerHTML;
+  const stamp = forPrint ? `
+    <div style="position:absolute;bottom:110px;right:16px;transform:rotate(-15deg);border:3px solid rgba(220,30,30,.55);border-radius:50%;width:86px;height:86px;display:flex;align-items:center;justify-content:center;text-align:center;color:rgba(220,30,30,.6);font-size:8.5px;font-weight:900;letter-spacing:.06em;line-height:1.4;text-transform:uppercase;box-shadow:0 0 0 2px rgba(220,30,30,.18)">
+      18+<br>VELVET<br>BOX
+    </div>` : '';
+
+  return `<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<title>Chek #VelvetBox</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'DM Sans',Arial,sans-serif; background:#f5f5f5; display:flex; justify-content:center; padding:20px; }
+  .wrap { background:#fff; width:340px; box-shadow:0 2px 12px rgba(0,0,0,.12); position:relative; }
+  .receipt-header { background:linear-gradient(135deg,#ff9000,#ffb347); color:#000; padding:20px 16px 16px; text-align:center; }
+  .r-logo { font-size:26px; font-weight:900; text-transform:uppercase; letter-spacing:.04em; }
+  .r-logo span { background:#000; color:#ff9000; padding:0 5px; border-radius:3px; margin-left:2px; }
+  .r-sub { font-size:9px; letter-spacing:.22em; text-transform:uppercase; color:rgba(0,0,0,.5); margin-top:4px; font-weight:700; }
+  .badge18 { display:inline-block; border:2px solid #000; color:#000; font-size:10px; font-weight:900; padding:1px 6px; border-radius:3px; margin-bottom:6px; letter-spacing:.06em; }
+  .tagline { font-size:9px; color:rgba(0,0,0,.4); margin-top:4px; letter-spacing:.06em; }
+  .body { padding:14px 16px; position:relative; }
+  .watermark { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) rotate(-30deg); font-size:52px; font-weight:900; color:rgba(255,144,0,.07); white-space:nowrap; pointer-events:none; user-select:none; }
+  .section-title { text-align:center; color:#bbb; font-size:9px; letter-spacing:.18em; text-transform:uppercase; padding:6px 0; border-top:1px dashed #eee; border-bottom:1px dashed #eee; margin:6px 0; }
+  .row { display:flex; justify-content:space-between; align-items:flex-start; padding:5px 0; font-size:12px; border-bottom:1px dashed #f0f0f0; }
+  .row:last-child { border-bottom:none; }
+  .row .label { color:#999; font-size:11px; }
+  .row .val { font-weight:600; text-align:right; max-width:180px; }
+  .row.total { border-top:2px solid #111; border-bottom:none; margin-top:6px; padding-top:8px; font-weight:800; font-size:14px; }
+  .row.total .val { color:#ff9000; font-size:15px; }
+  .stamp {
+    position:absolute; bottom:110px; right:16px;
+    transform:rotate(-15deg);
+    border:3px solid rgba(220,30,30,.55);
+    border-radius:50%;
+    width:86px; height:86px;
+    display:flex; align-items:center; justify-content:center;
+    text-align:center;
+    color:rgba(220,30,30,.6);
+    font-size:8.5px; font-weight:900;
+    letter-spacing:.06em; text-transform:uppercase; line-height:1.4;
+    box-shadow:0 0 0 2px rgba(220,30,30,.18), inset 0 0 12px rgba(220,30,30,.07);
+    background:rgba(255,255,255,.03);
+  }
+  .perf { height:2px; background:repeating-linear-gradient(90deg,#ddd 0,#ddd 6px,transparent 6px,transparent 12px); margin:0; }
+  .footer { text-align:center; padding:14px 16px; background:#fafafa; }
+  .footer .badge { display:inline-block; border:2px solid #ff9000; color:#ff9000; font-size:9px; font-weight:900; padding:2px 8px; border-radius:3px; margin-bottom:6px; letter-spacing:.08em; }
+  .footer .site { color:#ff9000; font-size:12px; font-weight:700; margin-top:4px; }
+  .footer .sub { color:#aaa; font-size:10px; margin-top:2px; }
+  @media print {
+    body { background:white; padding:0; }
+    .wrap { box-shadow:none; width:100%; }
+    .stamp { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .receipt-header { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="receipt-header">
+    <div class="badge18">18+</div>
+    <div class="r-logo">Velvet<span>Box</span></div>
+    <div class="r-sub">RASMIY BUYURTMA CHEKI</div>
+    <div class="tagline">diskret · tez · ishonchli</div>
+  </div>
+  <div class="body">
+    <div class="watermark">18+ VELVETBOX</div>
+    ${body.replace(/class="receipt-row total"/g,'class="row total"')
+          .replace(/class="receipt-row"/g,'class="row"')
+          .replace(/class="receipt-divider"/g,'class="section-title"')
+          .replace(/style="color:#888;font-size:.72rem"/g,'class="label"')
+          .replace(/style="color:#888"/g,'class="label"')
+    }
+    ${forPrint ? '<div class="stamp">18+<br>VELVET<br>BOX</div>' : ''}
+  </div>
+  <div class="perf"></div>
+  <div class="footer">
+    <div class="badge">18+ FAQAT KATTALAR</div>
+    <div class="sub">VelvetBox — Diskret xarid platformasi</div>
+    <div class="site">velvetbox.uz</div>
+  </div>
+</div>
+</body></html>`;
+}
+
+function printReceipt() {
+  const html = getReceiptHTML(true);
+  const win = window.open('','_blank','width=420,height=700');
+  if(!win) { showToast('⚠️ Popup bloklangan. Ruxsat bering.'); return; }
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(()=>{ win.print(); }, 600);
+}
+
+function downloadReceipt() {
+  const html = getReceiptHTML(false);
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const bodyEl = document.getElementById('receipt-body').innerHTML;
+  const idMatch = bodyEl.match(/>#(\d+)</);
+  const orderId = idMatch ? idMatch[1] : 'chek';
+  const today = new Date();
+  const dd = String(today.getDate()).padStart(2,'0');
+  const mm = String(today.getMonth()+1).padStart(2,'0');
+  const yy = today.getFullYear();
+  a.href = url;
+  a.download = `velvetbox-chek-${orderId}-${dd}${mm}${yy}.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('✅ Chek yuklab olindi!');
+}
+
+// ════════════════════════════════
+//  MIJOZ BILAN CHAT
+// ════════════════════════════════
+function openCustomerChat() {
+  const o = store.orders.find(x=>x.id===currentOrderId);
+  if(!o) return;
+  const userId = o.tgId && o.tgId.startsWith('@user_') ? o.tgId.replace('@user_','') : null;
+  if(!userId) { showToast('⚠️ Mijoz Telegram ID si topilmadi'); return; }
+  const chatUrl = 'https://t.me/' + userId;
+  if(tg) tg.openTelegramLink(chatUrl);
+  else window.open(chatUrl, '_blank');
+}
+
+// ════════════════════════════════
+//  TELEGRAM BOT XABARNOMA
+// ════════════════════════════════
+async function sendTelegramNotification(order) {
+  const token = store.settings.botToken;
+  const chatId = store.settings.chatId;
+  if(!token || !chatId) return;
+  const zone = store.deliveryZones?.find(z=>z.id===order.deliveryZoneId);
+  const payLabels = {cash:'💵 Naqd',transfer:'🏦 Otkazma',click:'🔵 Click',payme:'🟢 Payme'};
+  const text = `🛍️ *Yangi buyurtma #${order.id}*\n\n👤 Mijoz: ${order.customerName} | 📱 Tel: ${order.phone||'—'}\n📱 Telegram: ${order.tgId}\n\n📦 Mahsulotlar:\n${order.items.map(i=>`• ${i.emoji} ${i.name} x${i.qty} — ${fmtPrice(i.price*i.qty)}`).join('\n')}\n` +
+    (zone ? `🚚 Yetkazish: ${zone.name} — ${fmtPrice(zone.price)}\n` : '') +
+    (order.receiverName ? `👥 Qabul qiluvchi: ${order.receiverName} / ${order.receiverPhone}\n` : '') +
+    (order.address ? `📍 Manzil: ${order.address}\n` : '') +
+    (order.paymentMethod ? `💳 To'lov: ${payLabels[order.paymentMethod]||order.paymentMethod}\n` : '') +
+    (order.nasiyaMonths ? `🟣 Uzum Nasiya: ${order.nasiyaMonths} oy bo'lib to'lash\n` : '') +
+    `\n💰 *Jami: ${fmtPrice(order.total)}*`;
+
+  const url = `https://api.telegram.org/bot${token}/sendMessage`;
+  const body = JSON.stringify({chat_id: chatId, text, parse_mode: 'Markdown'});
+
+  // 1. fetch bilan sinab ko'r
+  try {
+    await fetch(url, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body
+    });
+    return;
+  } catch(e) {}
+
+  // 2. XMLHttpRequest bilan sinab ko'r
+  try {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', url, true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(body);
+  } catch(e) { console.log('Bot xatolik:', e); }
+}
+
+// ════════════════════════════════
+//  INIT
+// ════════════════════════════════
+// ════════════════════════════════
+//  AGE VERIFICATION
+// ════════════════════════════════
+const AGE_KEY = 'velvetbox_age_ok';
+
+function ageConfirm() {
+  sessionStorage.setItem(AGE_KEY, '1');
+  document.getElementById('age-gate').style.display = 'none';
+}
+
+function ageDeny() {
+  // Brauzerda yoki Telegramda orqaga qaytarish
+  if(tg) { tg.close(); } else { history.back() || window.close(); }
+}
+
+function showAgeGate() {
+  const gate = document.getElementById('age-gate');
+  gate.style.display = 'flex';
+}
+
+(function init() {
+  const tgUser = tg?.initDataUnsafe?.user;
+  const uid = tgUser ? Number(tgUser.id) : null;
+  const inTelegram = !!(tg?.initDataUnsafe && tgUser);
+  const isAdmin = uid ? ADMIN_TG_IDS.includes(uid) : false;
+
+  if(tgUser) {
+    document.getElementById('tg-name').textContent = tgUser.first_name||'—';
+  }
+
+  // Admin tugmasini ko'rsatish:
+  // - Telegram da: faqat admin IDga
+  // - Brauzerda: har doim (PIN bilan kiradi)
+  if(isAdmin || !inTelegram) {
+    document.getElementById('admin-entry-section').style.display='block';
+  }
+
+  // Age gate: faqat Telegram mijozlari uchun (admin emas)
+  if(inTelegram && !isAdmin) {
+    const alreadyConfirmed = sessionStorage.getItem(AGE_KEY);
+    if(!alreadyConfirmed) {
+      showAgeGate();
+    }
+  }
+
+  // Promo bannerini yangilash
+  document.getElementById('promo-text').textContent = 'Birinchi buyurtma — '+store.settings.discount+'% chegirma';
+  document.getElementById('promo-code').textContent = store.settings.promo;
+  document.getElementById('shop-phone').textContent = store.settings.phone;
+
+  buildChips();
+  renderShopProducts();
+})();
+</script>
+</body>
+</html>
