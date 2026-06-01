@@ -1,19 +1,16 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const app = express();
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-let storeData = null;
+// HTML faylni serve qilish
+app.use(express.static(path.join(__dirname)));
 
-app.get('/store', (req, res) => {
-  res.json({ data: storeData });
-});
-
-app.post('/store', (req, res) => {
-  storeData = req.body.data;
-  res.json({ ok: true });
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
