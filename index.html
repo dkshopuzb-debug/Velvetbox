@@ -1435,16 +1435,14 @@
 
 <script>
 // ════════════════════════════════
-//  STORAGE — Supabase + localStorage
+//  STORAGE — O'z server API + localStorage
 // ════════════════════════════════
 const STORE_KEY = 'velvetbox_v3';
 const DEFAULT_PIN = '123456';
 const ADMIN_TG_IDS = [5751449422];
 
-const SUPABASE_URL = 'https://yozjoivvfyhhysnmlrct.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlvempvaXZ2ZnloaHlzbm1scmN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMDA1ODcsImV4cCI6MjA5NTg3NjU4N30.Goi5OWxSFHqCRUrglAg40E2GMo83jnMxmXMMIc52Huw';
-const SB_TABLE = 'store';
-const SB_ROW_ID = 1;
+// O'z serveringiz manzili (relative URL — har qanday hostda ishlaydi)
+const API_URL = '/api/store';
 
 let _memStore = null;
 
@@ -1464,35 +1462,25 @@ async function saveStoreAsync() {
   _memStore = JSON.parse(JSON.stringify(store));
   try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch(e){}
   try {
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/${SB_TABLE}`, {
+    const r = await fetch(API_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPABASE_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_KEY,
-        'Prefer': 'resolution=merge-duplicates'
-      },
-      body: JSON.stringify({ id: SB_ROW_ID, data: JSON.stringify(store) })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: JSON.stringify(store) })
     });
-    return r.ok || r.status === 201;
+    return r.ok;
   } catch(e) {
-    console.log('Supabase save error:', e.message);
+    console.log('Server save error:', e.message);
     return false;
   }
 }
 
 async function loadStoreFromCloud() {
   try {
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/${SB_TABLE}?id=eq.${SB_ROW_ID}&select=data`, {
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_KEY
-      }
-    });
-    if(!r.ok) { console.log('Supabase load error:', r.status); return null; }
-    const rows = await r.json();
-    if(!rows || !rows.length || !rows[0].data) return null;
-    const record = JSON.parse(rows[0].data);
+    const r = await fetch(API_URL);
+    if(!r.ok) { console.log('Server load error:', r.status); return null; }
+    const json = await r.json();
+    if(!json || !json.data) return null;
+    const record = JSON.parse(json.data);
     if(record && record.orders !== undefined) {
       _memStore = record;
       try { localStorage.setItem(STORE_KEY, JSON.stringify(record)); } catch(e){}
@@ -1540,7 +1528,7 @@ if(!store.settings.pin) store.settings.pin = DEFAULT_PIN;
 store.settings.botToken = '8800018973:AAEcTFDL0RsclFGK3yzs-v9hgcp6L0K26wg';
 store.settings.chatId = '-1004271276712';
 
-// Cloud sync o'chirilgan — localStorage ishlatiladi
+// Cloud sync: O'z Express serverimiz orqali ishlaydi
 
 // ════════════════════════════════
 //  HELPERS
