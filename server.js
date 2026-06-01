@@ -79,5 +79,5 @@ app.get('/', (req, res) => {
 // ─── Server ishga tushish ─────────────────────────────
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(✅ VelvetBox server ishga tushdi: http://localhost:${PORT});
+  console.log("VelvetBox server ishga tushdi: port " + PORT);
 });
