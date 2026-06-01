@@ -398,16 +398,128 @@
 
   /* ── To'lov usuli ── */
   .payment-methods { display:flex; flex-direction:column; gap:.5rem; margin-bottom:.8rem; }
-  .payment-opt { display:flex; align-items:center; gap:.8rem; background:var(--card); border:1px solid var(--border); padding:.75rem 1rem; cursor:pointer; transition:border-color .2s; }
+  .payment-opt { display:flex; align-items:center; gap:.8rem; background:var(--card); border:1px solid var(--border); padding:.75rem 1rem; cursor:pointer; transition:border-color .2s; position:relative; }
   .payment-opt.selected { border-color:var(--accent); }
+  .payment-opt.disabled-pay { opacity:.65; cursor:default; }
   .payment-opt-icon { font-size:1.4rem; }
   .payment-opt-label { flex:1; font-size:.85rem; font-weight:500; }
   .payment-opt-check { width:18px; height:18px; border:2px solid var(--border); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.65rem; color:#fff; }
   .payment-opt.selected .payment-opt-check { background:var(--accent); border-color:var(--accent); }
+  .pay-soon-badge { font-size:.6rem; letter-spacing:.05em; background:#222; border:1px solid #444; color:#888; padding:.18rem .45rem; border-radius:3px; white-space:nowrap; }
+  .pay-logo { height:20px; width:auto; object-fit:contain; }
   .payment-link-btn { display:block; width:100%; padding:.7rem; text-align:center; font-size:.82rem; letter-spacing:.08em; text-transform:uppercase; border:none; cursor:pointer; margin-bottom:.5rem; text-decoration:none; font-family:'DM Sans',sans-serif; }
   .payment-link-btn.click-btn { background:#00AAFF; color:#fff; }
   .payment-link-btn.payme-btn { background:#1AC8A0; color:#fff; }
   .payment-link-btn.uzum-btn { background:#7b2ff7; color:#fff; font-weight:700; }
+
+  /* ── To'lov jarayoni full-screen ── */
+  #payment-screen {
+    display:none; position:fixed; inset:0; z-index:8000;
+    background:#000; flex-direction:column; align-items:center; justify-content:center;
+    padding:2rem 1.5rem;
+  }
+  #payment-screen.open { display:flex; }
+
+  /* Loading holat */
+  .pay-loading-wrap { text-align:center; }
+  .pay-lock-icon { font-size:3rem; margin-bottom:1rem; animation:lockPulse 1.5s ease-in-out infinite; }
+  @keyframes lockPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(.95)} }
+  .pay-loading-dots { display:flex; gap:.4rem; justify-content:center; margin:1rem 0; }
+  .pay-dot { width:8px; height:8px; border-radius:50%; background:var(--accent); animation:dotBounce 1.2s ease-in-out infinite; }
+  .pay-dot:nth-child(2) { animation-delay:.2s; }
+  .pay-dot:nth-child(3) { animation-delay:.4s; }
+  @keyframes dotBounce { 0%,80%,100%{transform:scale(.5);opacity:.5} 40%{transform:scale(1);opacity:1} }
+  .pay-loading-text { font-size:.88rem; color:var(--hint); letter-spacing:.05em; }
+
+  /* Karta ko'rsatish holat */
+  .pay-card-wrap { width:100%; max-width:360px; }
+  .card-display {
+    background:linear-gradient(135deg,#1a1a1a,#2a2a2a);
+    border:1px solid #3a3a3a; border-radius:12px;
+    padding:1.5rem; margin-bottom:1.5rem;
+    position:relative; overflow:hidden;
+  }
+  .card-display::before {
+    content:''; position:absolute; top:-30px; right:-30px;
+    width:120px; height:120px; border-radius:50%;
+    background:radial-gradient(circle, rgba(255,144,0,.15) 0%, transparent 70%);
+  }
+  .card-display-label { font-size:.6rem; letter-spacing:.16em; text-transform:uppercase; color:var(--hint); margin-bottom:.8rem; }
+  .card-number { font-size:1.3rem; font-weight:700; letter-spacing:.15em; color:#fff; margin-bottom:.5rem; font-family:'DM Sans',sans-serif; }
+  .card-copy-btn {
+    background:rgba(255,144,0,.15); border:1px solid rgba(255,144,0,.4);
+    color:var(--accent); padding:.4rem .9rem; font-size:.72rem;
+    letter-spacing:.06em; cursor:pointer; border-radius:4px; font-family:'DM Sans',sans-serif;
+    transition:all .2s;
+  }
+  .card-copy-btn:active { background:rgba(255,144,0,.3); }
+  .card-bank-name { font-size:.72rem; color:var(--hint); margin-top:.5rem; }
+
+  /* Timer */
+  .pay-timer-wrap { text-align:center; margin-bottom:1.5rem; }
+  .pay-timer-label { font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:#c0392b; margin-bottom:.4rem; font-weight:600; }
+  .pay-timer { font-size:2rem; font-weight:900; color:#e74c3c; font-family:'DM Sans',sans-serif; letter-spacing:.05em; }
+  .pay-timer.warning { animation:timerWarn .5s ease-in-out infinite; }
+  @keyframes timerWarn { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+  /* Chek yuklash */
+  .pay-upload-section { width:100%; max-width:360px; }
+  .pay-upload-btn {
+    width:100%; background:var(--card); border:2px dashed #3a3a3a;
+    color:var(--hint); padding:1rem; font-size:.85rem; cursor:pointer;
+    font-family:'DM Sans',sans-serif; text-align:center; transition:all .2s;
+    border-radius:6px; display:flex; align-items:center; justify-content:center; gap:.5rem;
+  }
+  .pay-upload-btn:hover { border-color:var(--accent); color:var(--accent); }
+  .pay-upload-btn.uploaded { border-color:var(--green); color:var(--green); background:rgba(76,175,80,.08); }
+  .pay-receipt-preview { width:100%; max-height:180px; object-fit:cover; border-radius:6px; margin-top:.6rem; display:none; }
+  .pay-submit-btn {
+    width:100%; background:var(--accent); color:#000; border:none;
+    padding:1rem; font-size:.95rem; font-weight:900; letter-spacing:.08em;
+    text-transform:uppercase; cursor:pointer; border-radius:6px; margin-top:.8rem;
+    display:none;
+  }
+  .pay-submit-btn.show { display:block; }
+
+  /* Chek tasdiqlash xabari */
+  .pay-sent-wrap { text-align:center; }
+  .pay-sent-icon { font-size:3rem; margin-bottom:1rem; }
+  .pay-sent-title { font-size:1.1rem; font-weight:700; margin-bottom:.5rem; }
+  .pay-sent-desc { font-size:.82rem; color:var(--hint); line-height:1.6; }
+
+  /* ── Admin to'lovga tayyor bo'lim ── */
+  .ready-pay-card {
+    background:var(--card); border:1px solid var(--border);
+    padding:1rem; margin-bottom:.6rem; border-radius:4px;
+    position:relative;
+  }
+  .ready-pay-card .rp-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:.8rem; }
+  .ready-pay-card .rp-id { font-size:.72rem; color:var(--hint); }
+  .ready-pay-card .rp-sum { font-size:1rem; font-weight:700; color:var(--accent); font-family:'DM Sans',sans-serif; }
+  .ready-pay-card .rp-name { font-size:.88rem; font-weight:600; margin-bottom:.2rem; }
+  .ready-pay-card .rp-phone { font-size:.78rem; color:var(--hint); margin-bottom:.2rem; }
+  .ready-pay-card .rp-product { font-size:.75rem; color:var(--hint); margin-bottom:.8rem; }
+  .rp-card-input-wrap { display:flex; gap:.5rem; }
+  .rp-card-input {
+    flex:1; background:var(--surface); border:1px solid var(--border);
+    color:var(--text); padding:.5rem .75rem; font-family:'DM Sans',sans-serif;
+    font-size:.82rem; outline:none; letter-spacing:.05em; border-radius:3px;
+  }
+  .rp-card-input:focus { border-color:var(--accent); }
+  .rp-send-btn {
+    background:var(--accent); border:none; color:#000; padding:.5rem 1rem;
+    font-size:.78rem; font-weight:700; cursor:pointer; border-radius:3px; white-space:nowrap;
+  }
+  .rp-status-badge { display:inline-block; font-size:.62rem; padding:.18rem .5rem; border-radius:3px; letter-spacing:.06em; margin-top:.4rem; }
+  .rp-status-waiting { background:rgba(200,169,110,.15); color:var(--gold); border:1px solid rgba(200,169,110,.35); }
+  .rp-status-card-sent { background:rgba(255,144,0,.15); color:var(--accent); border:1px solid rgba(255,144,0,.35); }
+  .rp-status-check-received { background:rgba(92,186,138,.15); color:var(--green); border:1px solid rgba(92,186,138,.35); }
+
+  /* Chek rasmini ko'rish (admin) */
+  .rp-receipt-img { width:100%; max-height:200px; object-fit:cover; border-radius:4px; margin-top:.6rem; cursor:pointer; display:none; }
+  .rp-approve-btns { display:flex; gap:.5rem; margin-top:.6rem; }
+  .rp-approve { background:var(--green); border:none; color:#fff; padding:.4rem .9rem; font-size:.75rem; font-weight:700; cursor:pointer; border-radius:3px; }
+  .rp-reject { background:transparent; border:1px solid #c9556a; color:#c9556a; padding:.4rem .9rem; font-size:.75rem; cursor:pointer; border-radius:3px; }
 
   /* Uzum Nasiya installment selector */
   .nasiya-plans { display:grid; grid-template-columns:repeat(3,1fr); gap:.5rem; margin-top:.7rem; }
@@ -621,30 +733,29 @@
       <div style="margin-top:.8rem">
         <div style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--hint);margin-bottom:.6rem">💳 To'lov usuli</div>
         <div class="payment-methods">
-          <div class="payment-opt selected" id="pay-cash" onclick="selectPayment('cash')">
-            <span class="payment-opt-icon">💵</span>
-            <span class="payment-opt-label">Naqd pul</span>
-            <div class="payment-opt-check">✓</div>
-          </div>
-          <div class="payment-opt" id="pay-transfer" onclick="selectPayment('transfer')">
-            <span class="payment-opt-icon">🏦</span>
-            <span class="payment-opt-label">O'tkazma (karta)</span>
-            <div class="payment-opt-check">✓</div>
-          </div>
-          <div class="payment-opt" id="pay-click" onclick="selectPayment('click')">
+          <!-- Click — tez kunda -->
+          <div class="payment-opt disabled-pay" id="pay-click" style="cursor:default">
             <span class="payment-opt-icon">🔵</span>
             <span class="payment-opt-label">Click</span>
-            <div class="payment-opt-check">✓</div>
+            <span class="pay-soon-badge">⏳ Tez kunda</span>
           </div>
-          <div class="payment-opt" id="pay-payme" onclick="selectPayment('payme')">
+          <!-- Payme — tez kunda -->
+          <div class="payment-opt disabled-pay" id="pay-payme" style="cursor:default">
             <span class="payment-opt-icon">🟢</span>
             <span class="payment-opt-label">Payme</span>
-            <div class="payment-opt-check">✓</div>
+            <span class="pay-soon-badge">⏳ Tez kunda</span>
           </div>
-          <div class="payment-opt" id="pay-nasiya" onclick="selectPayment('nasiya')">
+          <!-- Uzum Nasiya — tez kunda -->
+          <div class="payment-opt disabled-pay" id="pay-nasiya" style="cursor:default">
             <span class="payment-opt-icon">🟣</span>
-            <span class="payment-opt-label">Uzum Nasiya (bo'lib to'lash)</span>
-            <div class="payment-opt-check">✓</div>
+            <span class="payment-opt-label">Uzum Nasiya</span>
+            <span class="pay-soon-badge">⏳ Tez kunda</span>
+          </div>
+          <!-- Karta o'tkazma — faol -->
+          <div class="payment-opt selected" id="pay-transfer" onclick="selectPayment('transfer')" style="border-color:var(--accent);background:rgba(255,144,0,.05)">
+            <span class="payment-opt-icon">💳</span>
+            <span class="payment-opt-label" style="font-weight:600">Karta o'tkazma</span>
+            <div class="payment-opt-check" style="background:var(--accent);border-color:var(--accent)">✓</div>
           </div>
         </div>
         <div id="online-pay-links" style="display:none"></div>
@@ -652,9 +763,17 @@
       </div>
       <!-- Buyurtma beruvchi ma'lumotlari -->
       <div class="order-form">
-        <div class="order-form-title">👤 Buyurtma beruvchi</div>
-        <input type="text" id="order-fullname" placeholder="Ism Familiya *">
+        <div class="order-form-title">👤 Mijoz ma'lumotlari</div>
+        <input type="text" id="order-firstname" placeholder="Ism *">
+        <input type="text" id="order-lastname" placeholder="Familiya *">
         <input type="tel" id="order-phone" placeholder="Telefon raqam * (+998...)">
+        <!-- Maxfiy saqlash eslatmasi -->
+        <div style="background:rgba(255,144,0,.06);border:1px solid rgba(255,144,0,.2);padding:.7rem .9rem;margin:.5rem 0;border-radius:4px;font-size:.75rem;color:var(--hint);line-height:1.6">
+          🚚 <strong style="color:var(--text)">Yetkazib berish:</strong> O'zbekiston bo'ylab bepul<br>
+          ⏱ <strong style="color:var(--text)">Yetkazish vaqti:</strong> 1-2 kun<br>
+          📦 <strong style="color:var(--text)">Qadoqlash:</strong> Maxfiy qora o'ramda<br>
+          🏷 <strong style="color:var(--text)">Qutida:</strong> "Atir" deb ko'rsatiladi
+        </div>
         <label class="order-receiver-toggle">
           <input type="checkbox" id="receiver-check" onchange="toggleReceiver(this.checked)">
           Boshqa odamga yuboraman
@@ -677,7 +796,7 @@
         <span class="cart-total-label">Jami:</span>
         <span class="cart-total-sum" id="cart-total-sum">0 so'm</span>
       </div>
-      <button class="checkout-btn" onclick="checkout()">📦 Buyurtma berish</button>
+      <button class="checkout-btn" onclick="checkout()">💳 To'lov qilish</button>
     </div>
   </div>
 
@@ -752,6 +871,7 @@
       <div class="adm-nav-group">Asosiy</div>
       <div class="adm-link active" onclick="admGoPage('dashboard',this)"><span class="ni">📊</span><span>Dashboard</span></div>
       <div class="adm-link" onclick="admGoPage('orders',this)"><span class="ni">📦</span><span>Buyurtmalar</span></div>
+      <div class="adm-link" onclick="admGoPage('payments',this)"><span class="ni">💳</span><span>To'lovga tayyor</span><span id="adm-payments-badge" style="background:#c9556a;color:#fff;font-size:.55rem;padding:.1rem .35rem;border-radius:10px;margin-left:.3rem;display:none">0</span></div>
       <div class="adm-nav-group">Katalog</div>
       <div class="adm-link" onclick="admGoPage('products',this)"><span class="ni">🛍️</span><span>Mahsulotlar</span></div>
       <div class="adm-link" onclick="admGoPage('categories',this)"><span class="ni">🗂️</span><span>Kategoriyalar</span></div>
@@ -938,6 +1058,19 @@
       <div id="adm-reviews-list"></div>
     </div>
 
+    <!-- TO'LOVGA TAYYOR MIJOZLAR -->
+    <div class="adm-page" id="adm-page-payments">
+      <div style="margin-bottom:1rem;font-size:.78rem;color:var(--hint)">
+        Bu yerda <strong style="color:var(--accent)">karta o'tkazma</strong> tanlagan va to'lov kutilayotgan buyurtmalar ko'rsatiladi. Admin karta raqamini kiritib tasdiqlaydi — mijozda karta chiqadi.
+      </div>
+      <div id="ready-payments-list">
+        <div style="text-align:center;padding:3rem;color:var(--hint)">
+          <div style="font-size:2.5rem;margin-bottom:.8rem">💳</div>
+          <div>To'lovga tayyor buyurtmalar yo'q</div>
+        </div>
+      </div>
+    </div>
+
     <!-- SETTINGS -->
     <div class="adm-page" id="adm-page-settings">
       <div style="max-width:500px">
@@ -955,6 +1088,7 @@
             <div class="form-group"><label class="form-label">Click Merchant ID</label><input class="form-input" id="s-click-id" placeholder="12345"></div>
             <div class="form-group"><label class="form-label">Payme Merchant ID</label><input class="form-input" id="s-payme-id" placeholder="your_merchant_id"></div>
             <div class="form-group"><label class="form-label">Karta raqami (o'tkazma uchun)</label><input class="form-input" id="s-card" placeholder="8600 0000 0000 0000"></div>
+            <div class="form-group"><label class="form-label">WebApp URL (Netlify linki)</label><input class="form-input" id="s-webapp-url" placeholder="https://velvetbox.netlify.app"></div>
             <button class="btn btn-primary" onclick="saveSettings()">💾 Saqlash</button>
             <button class="btn btn-danger" style="margin-top:1.5rem;border-color:#c9556a;color:#c9556a;display:block;width:100%;padding:.7rem" onclick="resetStore()">🗑️ Barcha ma'lumotlarni tozalash (reset)</button>
           </div>
@@ -972,6 +1106,9 @@
       </button>
       <button class="adm-bnav-item" id="bnav-orders" onclick="admGoPage('orders',this,'bnav-orders')">
         <span class="ni">📦</span>Buyurtmalar
+      </button>
+      <button class="adm-bnav-item" id="bnav-payments" onclick="admGoPage('payments',this,'bnav-payments')">
+        <span class="ni">💳</span>To'lovlar
       </button>
       <button class="adm-bnav-item" id="bnav-products" onclick="admGoPage('products',this,'bnav-products')">
         <span class="ni">🛍️</span>Mahsulotlar
@@ -1132,6 +1269,91 @@
   </div>
 </div>
 
+<!-- ════ TO'LOV FULL-SCREEN ════ -->
+<div id="payment-screen">
+
+  <!-- HOLAT 1: XAVFSIZLIK TEKSHIRILMOQDA (loading) -->
+  <div id="pay-state-loading" class="pay-loading-wrap">
+    <div class="pay-lock-icon">💳</div>
+    <div style="font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--hint);margin-bottom:.5rem">Buyurtma qabul qilindi!</div>
+    <div class="pay-loading-dots">
+      <div class="pay-dot"></div>
+      <div class="pay-dot"></div>
+      <div class="pay-dot"></div>
+    </div>
+    <div class="pay-loading-text">Admin karta raqamini yubormoqda</div>
+    <div style="margin-top:1.5rem;font-size:.8rem;color:var(--hint);text-align:center;padding:0 1.5rem;line-height:1.6">
+      📱 Telegram botdan xabar keladi<br>
+      Xabardagi <strong style="color:var(--accent)">karta raqamiga</strong> o'tkazing
+    </div>
+    <div id="pay-debug" style="margin-top:1rem;font-size:.65rem;color:#444;text-align:center;padding:0 1rem;word-break:break-all"></div>
+  </div>
+
+  <!-- HOLAT 2: KARTA RAQAMI KO'RSATILADI -->
+  <div id="pay-state-card" class="pay-card-wrap" style="display:none">
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <div style="font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--hint);margin-bottom:.3rem">💳 Karta o'tkazma</div>
+      <div style="font-size:.95rem;font-weight:700;color:#fff">Quyidagi kartaga o'tkazing</div>
+    </div>
+
+    <div class="card-display">
+      <div class="card-display-label">Qabul qiluvchi karta</div>
+      <div class="card-number" id="pay-card-number">—</div>
+      <button class="card-copy-btn" onclick="copyCardNumber()">📋 Nusxa olish</button>
+      <div class="card-bank-name">Karta raqamini nusxalab, bank ilovasida o'tkazing</div>
+    </div>
+
+    <!-- 30 daqiqa taymer -->
+    <div class="pay-timer-wrap">
+      <div class="pay-timer-label">⚠️ 30 daqiqa ichida to'lovni amalga oshiring</div>
+      <div class="pay-timer" id="pay-countdown">30:00</div>
+    </div>
+
+    <!-- Chek yuklash -->
+    <div class="pay-upload-section">
+      <div class="pay-upload-btn" id="pay-upload-btn" onclick="document.getElementById('pay-receipt-file').click()">
+        📎 Chek yuklash (to'lov skrinshotini yuboring)
+      </div>
+      <input type="file" id="pay-receipt-file" accept="image/*" style="display:none" onchange="handleReceiptUpload(this)">
+      <img id="pay-receipt-preview" class="pay-receipt-preview" src="" alt="Chek">
+      <button class="pay-submit-btn" id="pay-submit-btn" onclick="submitReceipt()">✅ Chek yuborish</button>
+    </div>
+  </div>
+
+  <!-- HOLAT 3: CHEK TEKSHIRILMOQDA -->
+  <div id="pay-state-checking" class="pay-loading-wrap" style="display:none">
+    <div class="pay-lock-icon" style="animation:none;font-size:3rem">📋</div>
+    <div style="font-size:1rem;font-weight:700;margin-bottom:.5rem">Chek tekshirilmoqda...</div>
+    <div class="pay-loading-dots">
+      <div class="pay-dot"></div>
+      <div class="pay-dot"></div>
+      <div class="pay-dot"></div>
+    </div>
+    <div class="pay-loading-text">Admin sizning to'lovingizni tekshirmoqda</div>
+    <div style="margin-top:2rem;font-size:.75rem;color:var(--hint);text-align:center;max-width:260px">
+      Tasdiqlangandan so'ng buyurtmangiz avtomatik jo'natiladi
+    </div>
+  </div>
+
+  <!-- HOLAT 4: TASDIQLANDI -->
+  <div id="pay-state-approved" class="pay-sent-wrap" style="display:none">
+    <div class="pay-sent-icon">🎉</div>
+    <div class="pay-sent-title">To'lov tasdiqlandi!</div>
+    <div class="pay-sent-desc">Buyurtmangiz qabul qilindi.<br>Tez orada yetkazib beramiz.</div>
+    <button onclick="closePaymentScreen()" style="margin-top:2rem;background:var(--accent);color:#000;border:none;padding:.8rem 2rem;font-size:.88rem;font-weight:700;border-radius:6px;cursor:pointer;letter-spacing:.06em">Bosh sahifaga qaytish</button>
+  </div>
+
+  <!-- HOLAT 5: BEKOR QILINDI -->
+  <div id="pay-state-rejected" class="pay-sent-wrap" style="display:none">
+    <div class="pay-sent-icon">❌</div>
+    <div class="pay-sent-title">Chek rad etildi</div>
+    <div class="pay-sent-desc" id="pay-reject-reason">Chekni qayta tekshiring va yuborsh.</div>
+    <button onclick="retryReceipt()" style="margin-top:1.5rem;background:var(--accent);color:#000;border:none;padding:.8rem 2rem;font-size:.88rem;font-weight:700;border-radius:6px;cursor:pointer">🔄 Qayta yuborish</button>
+    <button onclick="closePaymentScreen()" style="margin-top:.7rem;background:transparent;color:var(--hint);border:1px solid var(--border);padding:.7rem 2rem;font-size:.85rem;border-radius:6px;cursor:pointer">Bosh sahifaga qaytish</button>
+  </div>
+
+</div><!-- /#payment-screen -->
+
 <!-- CHEK MODAL -->
 <div id="receipt-modal">
   <div style="width:100%;max-width:380px;display:flex;flex-direction:column;align-items:center;max-height:95vh;">
@@ -1206,22 +1428,24 @@
         <button class="btn btn-ghost btn-sm" onclick="setQuickMsg('Uzum Nasiya rasmiylashtirildi. Tasdiqlang!')">🟣 Nasiya</button>
       </div>
     </div>
+  </div><!-- /.modal -->
+</div><!-- /#modal-order -->
 
 <div class="toast" id="toast"></div>
 
 <script>
 // ════════════════════════════════
-//  STORAGE — JSONBin.io
+//  STORAGE — Supabase + localStorage
 // ════════════════════════════════
 const STORE_KEY = 'velvetbox_v3';
 const DEFAULT_PIN = '123456';
 const ADMIN_TG_IDS = [5751449422];
 
-const JSONBIN_ID  = '6a1b7d9121f9ee59d29f7350';
-const JSONBIN_KEY = '$2a$10$uLL0v3Lr4JColBh.rCvVGuAEVN2J5.6GlpDalsPqdpxNbHxJaBxBe';
-const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}`;
+const SUPABASE_URL = 'https://yozjoivvfyhhysnmlrct.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlvempvaXZ2ZnloaHlzbm1scmN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMDA1ODcsImV4cCI6MjA5NTg3NjU4N30.Goi5OWxSFHqCRUrglAg40E2GMo83jnMxmXMMIc52Huw';
+const SB_TABLE = 'store';
+const SB_ROW_ID = 1;
 
-// Memory cache
 let _memStore = null;
 
 function getStore() {
@@ -1231,42 +1455,54 @@ function getStore() {
 }
 
 function saveStore() {
-  // 1. Memory
   _memStore = JSON.parse(JSON.stringify(store));
-  // 2. localStorage
   try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch(e){}
-  // 3. JSONBin — asosiy bulut saqlash
+  saveStoreAsync().catch(()=>{});
+}
+
+async function saveStoreAsync() {
+  _memStore = JSON.parse(JSON.stringify(store));
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch(e){}
   try {
-    const xhr = new XMLHttpRequest();
-    xhr.open('PUT', JSONBIN_URL, true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.setRequestHeader('X-Master-Key', JSONBIN_KEY);
-    xhr.setRequestHeader('X-Bin-Versioning', 'false');
-    xhr.send(JSON.stringify(store));
-  } catch(e){ console.log('JSONBin save error:', e); }
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/${SB_TABLE}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Prefer': 'resolution=merge-duplicates'
+      },
+      body: JSON.stringify({ id: SB_ROW_ID, data: JSON.stringify(store) })
+    });
+    return r.ok || r.status === 201;
+  } catch(e) {
+    console.log('Supabase save error:', e.message);
+    return false;
+  }
 }
 
 async function loadStoreFromCloud() {
-  return new Promise((resolve) => {
-    try {
-      const xhr = new XMLHttpRequest();
-      xhr.open('GET', JSONBIN_URL + '/latest', true);
-      xhr.setRequestHeader('X-Master-Key', JSONBIN_KEY);
-      xhr.onload = function() {
-        if(xhr.status === 200) {
-          const data = JSON.parse(xhr.responseText);
-          const record = data.record || data;
-          if(record && record.products !== undefined) {
-            _memStore = record;
-            try { localStorage.setItem(STORE_KEY, JSON.stringify(record)); } catch(e){}
-            resolve(record);
-          } else { resolve(null); }
-        } else { resolve(null); }
-      };
-      xhr.onerror = () => resolve(null);
-      xhr.send();
-    } catch(e) { resolve(null); }
-  });
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/${SB_TABLE}?id=eq.${SB_ROW_ID}&select=data`, {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY
+      }
+    });
+    if(!r.ok) { console.log('Supabase load error:', r.status); return null; }
+    const rows = await r.json();
+    if(!rows || !rows.length || !rows[0].data) return null;
+    const record = JSON.parse(rows[0].data);
+    if(record && record.orders !== undefined) {
+      _memStore = record;
+      try { localStorage.setItem(STORE_KEY, JSON.stringify(record)); } catch(e){}
+      return record;
+    }
+    return null;
+  } catch(e) {
+    console.log('loadStoreFromCloud error:', e.message);
+    return null;
+  }
 }
 
 function buildDefaultStore() {
@@ -1275,7 +1511,7 @@ function buildDefaultStore() {
     categories: [],
     customers: [],
     orders: [],
-    settings: {shopName:"VelvetBox",phone:"+998 90 000 00 00",support:"@your_support_username",promo:"VELVET20",discount:20,pin:DEFAULT_PIN,botToken:'8800018973:AAEcTFDL0RsclFGK3yzs-v9hgcp6L0K26wg',chatId:'-1004271276712',clickId:'',paymeId:'',card:''},
+    settings: {shopName:"VelvetBox",phone:"+998 90 000 00 00",support:"@your_support_username",promo:"VELVET20",discount:20,pin:DEFAULT_PIN,botToken:'8800018973:AAEcTFDL0RsclFGK3yzs-v9hgcp6L0K26wg',chatId:'-1004271276712',clickId:'',paymeId:'',card:'',webappUrl:'https://velo18.netlify.app'},
     deliveryZones: [],
     nextProdId: 1,
     nextCatId: 1,
@@ -1304,20 +1540,7 @@ if(!store.settings.pin) store.settings.pin = DEFAULT_PIN;
 store.settings.botToken = '8800018973:AAEcTFDL0RsclFGK3yzs-v9hgcp6L0K26wg';
 store.settings.chatId = '-1004271276712';
 
-// Cloud dan yuklab, keyin UI ni yangilash
-(async function() {
-  const cloudData = await loadStoreFromCloud();
-  if(cloudData) {
-    store = cloudData;
-    store.settings.botToken = '8800018973:AAEcTFDL0RsclFGK3yzs-v9hgcp6L0K26wg';
-    store.settings.chatId = '-1004271276712';
-    if(!store.settings.pin) store.settings.pin = DEFAULT_PIN;
-    if(!store.reviews) store.reviews = [];
-    if(!store.deliveryZones) store.deliveryZones = [];
-    buildChips();
-    renderShopProducts();
-  }
-})();
+// Cloud sync o'chirilgan — localStorage ishlatiladi
 
 // ════════════════════════════════
 //  HELPERS
@@ -1444,14 +1667,385 @@ function changeQty(id,delta) {
   updateCartBadge(); renderCart();
 }
 
+// ════════════════════════════════
+//  TO'LOV EKRANI (PAYMENT SCREEN)
+// ════════════════════════════════
+let paymentOrderId = null;
+let paymentTimer = null;
+let paymentPollInterval = null;
+
+function openPaymentScreen(order) {
+  paymentOrderId = order.id;
+  const screen = document.getElementById('payment-screen');
+  screen.style.display = 'flex';
+  screen.classList.add('open');
+
+  // Barcha holatlarni yashir
+  showPayState('loading');
+
+  // 2 soniyadan keyin admin karta kiritishini kutish (polling)
+  startPaymentPolling();
+}
+
+function showPayState(state) {
+  ['loading','card','checking','approved','rejected'].forEach(s=>{
+    const el = document.getElementById('pay-state-'+s);
+    if(el) el.style.display = (s===state) ? (s==='loading'||s==='checking'||s==='approved'||s==='rejected'?'block':'block') : 'none';
+  });
+}
+
+function startPaymentPolling() {
+  if(paymentPollInterval) clearInterval(paymentPollInterval);
+
+  const poll = () => {
+    if(!paymentOrderId) return;
+
+    // localStorage dan oxirgi ma'lumotni ol (JSONBin CORS muammosi bor)
+    let freshStore = null;
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if(raw) freshStore = JSON.parse(raw);
+    } catch(e) {}
+
+    if(freshStore && freshStore.orders) {
+      const bt = store.settings.botToken;
+      const ci = store.settings.chatId;
+      const pin = store.settings.pin;
+      store = freshStore;
+      if(!store.settings.botToken) store.settings.botToken = bt;
+      if(!store.settings.chatId) store.settings.chatId = ci;
+      if(!store.settings.pin) store.settings.pin = pin;
+    }
+
+    const order = store.orders.find(o=>o.id===paymentOrderId);
+
+    // debug
+    const dbgEl = document.getElementById('pay-debug');
+    if(dbgEl && order) {
+      dbgEl.textContent = new Date().toLocaleTimeString() + ' | ' + order.paymentStatus + ' | ' + (order.cardNumber||'karta yoq');
+    }
+
+    if(!order) return;
+
+    if(order.paymentStatus === 'card_sent' && order.cardNumber) {
+      clearInterval(paymentPollInterval);
+      paymentPollInterval = null;
+      showCardToUser(order);
+    } else if(order.paymentStatus === 'approved') {
+      clearInterval(paymentPollInterval);
+      paymentPollInterval = null;
+      if(paymentTimer) { clearInterval(paymentTimer); paymentTimer = null; }
+      showPayState('approved');
+    } else if(order.paymentStatus === 'rejected') {
+      clearInterval(paymentPollInterval);
+      paymentPollInterval = null;
+      if(paymentTimer) { clearInterval(paymentTimer); paymentTimer = null; }
+      const el = document.getElementById('pay-reject-reason');
+      if(el) el.textContent = order.rejectReason || 'Chekni qayta tekshiring.';
+      showPayState('rejected');
+    }
+  };
+
+  poll();
+  paymentPollInterval = setInterval(poll, 1500);
+}
+
+function showCardToUser(order) {
+  document.getElementById('pay-card-number').textContent = order.cardNumber || '—';
+  showPayState('card');
+  startPaymentTimer();
+  // Chek upload boshlash
+  document.getElementById('pay-upload-btn').classList.remove('uploaded');
+  document.getElementById('pay-upload-btn').innerHTML = '📎 Chek yuklash (to\'lov skrinshotini yuboring)';
+  document.getElementById('pay-receipt-preview').style.display = 'none';
+  document.getElementById('pay-submit-btn').classList.remove('show');
+}
+
+function startPaymentTimer() {
+  let seconds = 30 * 60; // 30 daqiqa
+  const timerEl = document.getElementById('pay-countdown');
+  if(paymentTimer) clearInterval(paymentTimer);
+  paymentTimer = setInterval(() => {
+    seconds--;
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    timerEl.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    if(seconds <= 60) timerEl.classList.add('warning');
+    if(seconds <= 0) {
+      clearInterval(paymentTimer);
+      timerEl.textContent = '00:00';
+      // Buyurtmani bekor qil
+      const order = store.orders.find(o=>o.id===paymentOrderId);
+      if(order && order.paymentStatus !== 'approved') {
+        order.paymentStatus = 'rejected';
+        order.rejectReason = 'To\'lov vaqti tugadi (30 daqiqa).';
+        order.status = 'cancelled';
+        saveStore();
+      }
+      document.getElementById('pay-reject-reason').textContent = 'To\'lov vaqti tugadi (30 daqiqa).';
+      showPayState('rejected');
+    }
+  }, 1000);
+}
+
+function copyCardNumber() {
+  const num = document.getElementById('pay-card-number').textContent;
+  if(navigator.clipboard) {
+    navigator.clipboard.writeText(num.replace(/\s/g,''));
+    showToast('✅ Karta raqami nusxalandi!');
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = num; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('✅ Karta raqami nusxalandi!');
+  }
+}
+
+function handleReceiptUpload(input) {
+  if(!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = document.getElementById('pay-receipt-preview');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    const btn = document.getElementById('pay-upload-btn');
+    btn.classList.add('uploaded');
+    btn.innerHTML = '✅ Chek yuklandi';
+    document.getElementById('pay-submit-btn').classList.add('show');
+    // Rasmni orderta saqlash (base64 qisqaroq)
+    const order = store.orders.find(o=>o.id===paymentOrderId);
+    if(order) {
+      // Compress to small size
+      const canvas = document.createElement('canvas');
+      const imgEl = new Image();
+      imgEl.onload = () => {
+        const maxW = 600;
+        const scale = Math.min(1, maxW/imgEl.width);
+        canvas.width = imgEl.width * scale;
+        canvas.height = imgEl.height * scale;
+        canvas.getContext('2d').drawImage(imgEl, 0, 0, canvas.width, canvas.height);
+        order.receiptImg = canvas.toDataURL('image/jpeg', 0.6);
+        order.paymentStatus = 'check_received';
+        saveStore();
+        updateReadyPaymentsBadge();
+      };
+      imgEl.src = e.target.result;
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+async function submitReceipt() {
+  const order = store.orders.find(o=>o.id===paymentOrderId);
+  if(!order || !order.receiptImg) { showToast('Avval chek rasmini yuklang'); return; }
+  order.paymentStatus = 'check_received';
+  order.status = 'processing';
+  clearInterval(paymentPollInterval);
+  paymentPollInterval = null;
+  showPayState('checking');
+  await saveStoreAsync();
+  sendReceiptNotification(order);
+  // Tekshirishni davom ettir
+  startPaymentPolling();
+}
+
+async function sendReceiptNotification(order) {
+  const chatId = store.settings.chatId;
+  const text = `Chek yuborildi — Buyurtma #${order.id}\n\nMijoz: ${order.customerName}\nTel: ${order.phone}\nJami: ${fmtPrice(order.total)}\n\nTolovlar bolimida tasdiqlang!`;
+  await tgSend(chatId, text);
+}
+
+function retryReceipt() {
+  const order = store.orders.find(o=>o.id===paymentOrderId);
+  if(order) {
+    order.paymentStatus = 'card_sent';
+    order.receiptImg = '';
+    saveStore();
+  }
+  document.getElementById('pay-receipt-preview').style.display = 'none';
+  document.getElementById('pay-submit-btn').classList.remove('show');
+  document.getElementById('pay-upload-btn').classList.remove('uploaded');
+  document.getElementById('pay-upload-btn').innerHTML = '📎 Chek yuklash (to\'lov skrinshotini yuboring)';
+  showPayState('card');
+  startPaymentPolling();
+}
+
+function closePaymentScreen() {
+  if(paymentTimer) clearInterval(paymentTimer);
+  if(paymentPollInterval) clearInterval(paymentPollInterval);
+  paymentOrderId = null;
+  document.getElementById('payment-screen').style.display = 'none';
+  document.getElementById('payment-screen').classList.remove('open');
+  goPage('home');
+}
+
+// ════ ADMIN: TO'LOVGA TAYYOR MIJOZLAR ════
+function updateReadyPaymentsBadge() {
+  const count = store.orders.filter(o=>['waiting_card','card_sent','check_received'].includes(o.paymentStatus)).length;
+  const badge = document.getElementById('adm-payments-badge');
+  if(!badge) return;
+  if(count > 0) { badge.textContent = count; badge.style.display = 'inline'; }
+  else { badge.style.display = 'none'; }
+}
+
+function renderReadyPayments() {
+  const list = store.orders.filter(o=>
+    o.paymentMethod === 'transfer' &&
+    o.paymentStatus && o.paymentStatus !== 'approved' && o.status !== 'cancelled'
+  ).sort((a,b)=>b.ts-a.ts);
+
+  const container = document.getElementById('ready-payments-list');
+  if(!container) return;
+
+  if(!list.length) {
+    container.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--hint)"><div style="font-size:2.5rem;margin-bottom:.8rem">💳</div><div>To\'lovga tayyor buyurtmalar yo\'q</div></div>';
+    return;
+  }
+
+  container.innerHTML = list.map(o => {
+    const statusMap = {
+      waiting_card:'<span class="rp-status-badge rp-status-waiting">⏸ Karta kutilmoqda</span>',
+      card_sent:'<span class="rp-status-badge rp-status-card-sent">💳 Karta yuborildi</span>',
+      check_received:'<span class="rp-status-badge rp-status-check-received">📋 Chek keldi</span>'
+    };
+    const prodNames = o.items.map(i=>`${i.emoji} ${i.name}`).join(', ');
+    const hasReceipt = o.receiptImg ? `<img src="${o.receiptImg}" class="rp-receipt-img" style="display:block" onclick="window.open(this.src,'_blank')">` : '';
+    const approveButtons = o.paymentStatus === 'check_received' ? `
+      <div class="rp-approve-btns">
+        <button class="rp-approve" onclick="approvePayment(${o.id})">✅ Tasdiqlash</button>
+        <button class="rp-reject" onclick="rejectPayment(${o.id})">❌ Bekor qilish</button>
+      </div>` : '';
+
+    return `
+    <div class="ready-pay-card" id="rp-${o.id}">
+      <div class="rp-header">
+        <div>
+          <div class="rp-id">Buyurtma #${o.id} · ${o.date}</div>
+          <div class="rp-name">${o.customerName}</div>
+          <div class="rp-phone">📱 ${o.phone}</div>
+          <div class="rp-product">${prodNames}</div>
+          ${statusMap[o.paymentStatus] || ''}
+        </div>
+        <div class="rp-sum">${fmtPrice(o.total)}</div>
+      </div>
+      ${o.paymentStatus === 'waiting_card' ? `
+        <div style="font-size:.72rem;color:var(--hint);margin-bottom:.5rem">Karta raqamini kiriting — mijozga avtomatik yuboriladi:</div>
+        <div class="rp-card-input-wrap">
+          <input class="rp-card-input" id="card-input-${o.id}" placeholder="8600 XXXX XXXX XXXX" maxlength="19"
+            oninput="this.value=this.value.replace(/[^0-9]/g,'').replace(/(.{4})/g,'$1 ').trim()">
+          <button class="rp-send-btn" onclick="sendCardToClient(${o.id})">📤 Yuborish</button>
+        </div>` : ''}
+      ${o.cardNumber && o.paymentStatus !== 'waiting_card' ? `<div style="font-size:.78rem;color:var(--hint);margin-top:.3rem">💳 Yuborilgan karta: <strong style="color:var(--text)">${o.cardNumber}</strong></div>` : ''}
+      ${hasReceipt}
+      ${approveButtons}
+    </div>`;
+  }).join('');
+}
+
+async function sendCardToClient(orderId) {
+  const input = document.getElementById('card-input-'+orderId);
+  const cardNum = input ? input.value.trim() : '';
+  if(!cardNum || cardNum.replace(/\s/g,'').length < 16) {
+    showToast('Toliq karta raqamini kiriting (16 raqam)'); return;
+  }
+  const order = store.orders.find(o=>o.id===orderId);
+  if(!order) return;
+  order.cardNumber = cardNum;
+  order.paymentStatus = 'card_sent';
+  saveStore(); // localStorage ga saqlash (sync)
+
+  // Mijozga Telegram bot orqali karta + WebApp link yuborish
+  const userId = order.tgId && order.tgId.startsWith('@user_')
+    ? order.tgId.replace('@user_','')
+    : null;
+
+  if(userId) {
+    const webappUrl = 'https://velo18.netlify.app';
+    const token = store.settings.botToken;
+
+    // Inline keyboard bilan xabar — "Tolov qilish" tugmasi WebApp ochadi
+    const text =
+      `💳 VelvetBox — Buyurtma #${order.id}\n\n` +
+      `Karta raqami:\n*${cardNum}*\n\n` +
+      `Jami: *${fmtPrice(order.total)}*\n\n` +
+      `Kartaga otkazma qiling va chek yuboring!`;
+
+    const url = `https://api.telegram.org/bot${token}/sendMessage`;
+    const payload = {
+      chat_id: userId,
+      text: text,
+      parse_mode: 'Markdown'
+    };
+
+    // Agar webapp url sozlangan bolsa — tugma qosh
+    if(webappUrl) {
+      payload.reply_markup = {
+        inline_keyboard: [[
+          { text: '💳 Chek yuborish', web_app: { url: webappUrl + '?pay=' + order.id } }
+        ]]
+      };
+    }
+
+    try {
+      const r = await fetch(url, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+      const d = await r.json();
+      if(d.ok) {
+        showToast('✅ Karta mijozga yuborildi!');
+      } else {
+        showToast('Saqlandi! Bot xabar: ' + (d.description||'xato'));
+      }
+    } catch(e) {
+      showToast('Saqlandi! (internet xato)');
+    }
+  } else {
+    showToast('Saqlandi! (mijoz TG ID topilmadi)');
+  }
+
+  renderReadyPayments();
+  updateReadyPaymentsBadge();
+}
+
+function approvePayment(orderId) {
+  const order = store.orders.find(o=>o.id===orderId);
+  if(!order) return;
+  order.paymentStatus = 'approved';
+  order.status = 'confirmed';
+  saveStore();
+  sendStatusNotification(order, 'confirmed');
+  showToast('✅ To\'lov tasdiqlandi! Buyurtma tasdiqlandi.');
+  renderReadyPayments();
+  updateReadyPaymentsBadge();
+}
+
+function rejectPayment(orderId) {
+  const reason = prompt("Rad etish sababi (ixtiyoriy):") || "Chek noto'g'ri.";
+  const order = store.orders.find(o=>o.id===orderId);
+  if(!order) return;
+  order.paymentStatus = 'rejected';
+  order.rejectReason = reason;
+  order.status = 'cancelled';
+  saveStore();
+  showToast('❌ To\'lov rad etildi.');
+  renderReadyPayments();
+  updateReadyPaymentsBadge();
+}
+
 function checkout() {
   const items = Object.values(cart);
   if(!items.length) return;
-  const payMethod = selectedPayment || 'cash';
-  const fullname = document.getElementById('order-fullname')?.value.trim();
+  const payMethod = 'transfer'; // Faqat karta o'tkazma faol
+  const firstname = document.getElementById('order-firstname')?.value.trim();
+  const lastname = document.getElementById('order-lastname')?.value.trim();
   const phone = document.getElementById('order-phone')?.value.trim();
-  if(!fullname){ showToast('⚠️ Ism Familiya kiriting'); return; }
+  if(!firstname){ showToast('⚠️ Ismingizni kiriting'); return; }
+  if(!lastname){ showToast('⚠️ Familiyangizni kiriting'); return; }
   if(!phone){ showToast('⚠️ Telefon raqam kiriting'); return; }
+  const fullname = firstname + ' ' + lastname;
   const hasReceiver = document.getElementById('receiver-check')?.checked;
   const receiverName = hasReceiver ? document.getElementById('receiver-fullname')?.value.trim() : '';
   const receiverPhone = hasReceiver ? document.getElementById('receiver-phone')?.value.trim() : '';
@@ -1460,55 +2054,53 @@ function checkout() {
   const deliveryPrice = zone ? zone.price : 0;
   const itemsTotal = items.reduce((s,i)=>s+i.price*i.qty,0);
   const total = itemsTotal + deliveryPrice;
-  const text = items.map(i=>`${i.emoji} ${i.name} x${i.qty} — ${fmtPrice(i.price*i.qty)}`).join('\n');
 
   const userName = tg?.initDataUnsafe?.user?.first_name || 'Noma\'lum';
   const tgId = tg?.initDataUnsafe?.user?.id ? '@user_'+tg.initDataUnsafe.user.id : '@guest';
   const newOrder = {
     id: store.orders.length ? Math.max(...store.orders.map(o=>o.id))+1 : 1,
-    customerId: 0, customerName: fullname || userName, phone, tgId,
+    customerId: 0, customerName: fullname, firstname, lastname, phone, tgId,
     items: [...items], total, status: 'pending',
     deliveryZoneId: selectedDeliveryZone||null,
     address,
     paymentMethod: payMethod,
-    nasiyaMonths: payMethod === 'nasiya' ? selectedNasiyaMonths : null,
+    nasiyaMonths: null,
     receiverName: receiverName||'', receiverPhone: receiverPhone||'',
     customerConfirmed: false,
+    paymentStatus: 'waiting_card', // waiting_card | card_sent | check_received | approved | rejected
+    cardNumber: '',
+    receiptImg: '',
     date: new Date().toISOString().split('T')[0],
     ts: Date.now()
   };
 
-  const doCheckout = () => {
-    try {
-      store.orders.unshift(newOrder);
-      saveStore();
-      sendTelegramNotification(newOrder);
-    } catch(e) { console.log('save error:', e); }
+  const doCheckout = async () => {
+    // 1. Darhol buyurtmani store ga qo'sh
+    store.orders.unshift(newOrder);
 
-    // Savatni tozalash
+    // 2. Savatni tozalash
     cart = {};
     selectedDeliveryZone = null;
-    selectedPayment = 'cash';
-
-    // Formani tozalash
-    const fn = document.getElementById('order-fullname'); if(fn) fn.value='';
+    selectedPayment = 'transfer';
+    const fn1 = document.getElementById('order-firstname'); if(fn1) fn1.value='';
+    const fn2 = document.getElementById('order-lastname'); if(fn2) fn2.value='';
     const ph = document.getElementById('order-phone'); if(ph) ph.value='';
     const rc = document.getElementById('receiver-check'); if(rc){ rc.checked=false; toggleReceiver(false); }
     const da = document.getElementById('delivery-address'); if(da) da.value='';
-
     updateCartBadge();
-
-    // Home sahifaga o'tish
     goPage('home');
 
-    // Toast xabar
-    setTimeout(() => showToast('🎉 Buyurtma #' + newOrder.id + ' qabul qilindi!'), 200);
+    // 3. To'lov ekranini DARHOL och (polling 1 soniyadan keyin boshlanadi)
+    openPaymentScreen(newOrder);
 
-    // Chekni avtomatik ko'rsatish
-    setTimeout(() => showOrderReceipt(newOrder), 400);
+    // 4. Fonda cloud ga saqlash va admin ga xabar
+    try {
+      await saveStoreAsync();
+      await sendTelegramNotification(newOrder);
+    } catch(e) { console.log('save/notify error:', e); }
   };
 
-  // Custom confirm modal - har doim ishlaydi
+  // Tasdiqlash modali
   showOrderConfirm({
     items,
     zone,
@@ -1516,25 +2108,28 @@ function checkout() {
     address,
     total,
     payMethod,
-    nasiyaMonths: payMethod === 'nasiya' ? selectedNasiyaMonths : null,
+    nasiyaMonths: null,
     onConfirm: doCheckout
   });
 }
 
 let _pendingCheckout = null;
 
-function confirmOrderModal() {
-  // Modalni yop
-  const modal = document.getElementById('order-confirm-modal');
-  if(modal) modal.style.display = 'none';
+let _checkoutRunning = false;
+async function confirmOrderModal() {
+  if(_checkoutRunning) return; // ikki marta bosilmasin
+  _checkoutRunning = true;
 
-  // Checkout funksiyasini chaqir
+  const modal = document.getElementById('order-confirm-modal');
+  if(modal) modal.remove();
+
   const fn = _pendingCheckout;
   _pendingCheckout = null;
 
   if(typeof fn === 'function') {
-    setTimeout(fn, 50); // kichik delay - modal yopilgandan keyin
+    try { await fn(); } catch(e){ console.log('checkout err:', e); }
   }
+  _checkoutRunning = false;
 }
 
 function cancelOrderModal() {
@@ -1635,6 +2230,7 @@ function checkPin() {
 }
 
 function exitAdmin() {
+  if(admPaymentsPollInterval) { clearInterval(admPaymentsPollInterval); admPaymentsPollInterval = null; }
   document.getElementById('admin-login').classList.remove('show');
   document.getElementById('admin-panel').classList.remove('show');
   document.getElementById('shop-wrap').style.display = 'block';
@@ -1648,12 +2244,18 @@ const admTitles = {
   delivery:'Yetkazib berish <em>zonalari</em>',
   reviews:'Izohlar <em>boshqaruvi</em>',
   orders:'Buyurtmalar <em>ro\'yxati</em>',
+  payments:'To\'lovga tayyor <em>mijozlar</em>',
   products:'Mahsulotlar <em>katalogi</em>',
   categories:'Kategoriyalar',
   customers:'Mijozlar <em>bazasi</em>',
   settings:'Sozlamalar'
 };
+let admPaymentsPollInterval = null;
+
 function admGoPage(name, el) {
+  // Avvalgi payments polling ni to'xtat
+  if(admPaymentsPollInterval) { clearInterval(admPaymentsPollInterval); admPaymentsPollInterval = null; }
+
   document.querySelectorAll('.adm-page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.adm-link').forEach(n=>n.classList.remove('active'));
   document.querySelectorAll('.adm-bnav-item').forEach(n=>n.classList.remove('active'));
@@ -1665,6 +2267,16 @@ function admGoPage(name, el) {
   document.getElementById('adm-topbar-title').innerHTML = admTitles[name]||name;
   if(name==='dashboard') renderDashboard();
   else if(name==='orders') renderOrders();
+  else if(name==='payments') {
+    renderReadyPayments();
+    // Har 4 soniyada cloud'dan yangilash
+    admPaymentsPollInterval = setInterval(() => {
+      try {
+        const raw = localStorage.getItem(STORE_KEY);
+        if(raw) { store = JSON.parse(raw); renderReadyPayments(); updateReadyPaymentsBadge(); }
+      } catch(e) {}
+    }, 2000);
+  }
   else if(name==='products') renderAdmProducts();
   else if(name==='categories') renderCategories();
   else if(name==='customers') renderCustomers();
@@ -1797,26 +2409,18 @@ function updateOrderStatus(status) {
 }
 
 async function sendStatusNotification(order, status) {
-  const token = store.settings.botToken;
   const userId = order.tgId && order.tgId.startsWith('@user_') ? order.tgId.replace('@user_','') : null;
-  if(!token || !userId) return;
+  if(!userId) return;
   const statusMsg = {
-    processing: '⏳ Buyurtmangiz saralanmoqda! Tez orada yig\'iladi.',
-    confirmed: '✅ Buyurtmangiz tasdiqlandi! Tez orada yo\'lga chiqamiz.',
-    shipping: '🚚 Buyurtmangiz yo\'lda! Yaqin orada yetib boradi.',
-    delivered: '📦 Buyurtmangiz yetkazildi! Xaridingiz uchun rahmat 🔥',
-    cancelled: '❌ Afsuski, buyurtmangiz bekor qilindi. Aloqa uchun: ' + store.settings.support
+    processing: 'Buyurtmangiz saralanmoqda!',
+    confirmed: 'Buyurtmangiz tasdiqlandi! Tez orada yolga chiqamiz.',
+    shipping: 'Buyurtmangiz yolda! Yaqin orada yetib boradi.',
+    delivered: 'Buyurtmangiz yetkazildi! Xaridingiz uchun rahmat',
+    cancelled: 'Buyurtmangiz bekor qilindi. Aloqa: ' + store.settings.support
   }[status];
   if(!statusMsg) return;
-  const nasiyaInfo = order.nasiyaMonths ? `\n🟣 Uzum Nasiya: ${order.nasiyaMonths} oy bo'lib to'lash` : '';
-  const text = `🛍️ *VelvetBox — Buyurtma #${order.id}*\n\n${statusMsg}${nasiyaInfo}`;
-  try {
-    await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({chat_id: userId, text, parse_mode:'Markdown'})
-    });
-  } catch(e) { console.log('Status xabar xatolik:', e); }
+  const text = `VelvetBox — Buyurtma #${order.id}\n\n${statusMsg}`;
+  await tgSend(userId, text);
 }
 
 function setQuickMsg(text) {
@@ -1828,32 +2432,17 @@ async function sendDirectMessage() {
   const o = store.orders.find(x=>x.id===currentOrderId);
   if(!o) return;
   const msg = document.getElementById('admin-msg-input')?.value.trim();
-  if(!msg) { showToast('⚠️ Xabar yozing'); return; }
-  const token = store.settings.botToken;
+  if(!msg) { showToast('Xabar yozing'); return; }
   const userId = o.tgId && o.tgId.startsWith('@user_') ? o.tgId.replace('@user_','') : null;
-  if(!token || !userId) {
-    // Fallback: Telegram chatni och
-    openCustomerChat();
-    return;
-  }
-  const text = `🛍️ *VelvetBox — Buyurtma #${o.id}*\n\n${msg}`;
-  try {
-    const res = await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({chat_id: userId, text, parse_mode:'Markdown'})
-    });
-    const data = await res.json();
-    if(data.ok) {
-      showToast('✅ Xabar yuborildi!');
-      document.getElementById('admin-msg-input').value = '';
-    } else {
-      // If bot can't message, try Telegram link
-      showToast('⚠️ Bot orqali yuborib bo\'lmadi. Telegram orqali ochiladi...');
-      setTimeout(() => openCustomerChat(), 1000);
-    }
-  } catch(e) {
-    showToast('⚠️ Xabar yuborishda xatolik');
+  if(!userId) { openCustomerChat(); return; }
+  const text = `VelvetBox — Buyurtma #${o.id}\n\n${msg}`;
+  const ok = await tgSend(userId, text);
+  if(ok) {
+    showToast('Xabar yuborildi!');
+    document.getElementById('admin-msg-input').value = '';
+  } else {
+    showToast('Bot xato. Telegram orqali ochiladi...');
+    setTimeout(() => openCustomerChat(), 1000);
   }
 }
 
@@ -2042,6 +2631,7 @@ function loadSettings() {
   document.getElementById('s-click-id').value = s.clickId||'';
   document.getElementById('s-payme-id').value = s.paymeId||'';
   document.getElementById('s-card').value = s.card||'';
+  document.getElementById('s-webapp-url').value = s.webappUrl||'';
 }
 function saveSettings() {
   const newPin = document.getElementById('s-pin').value.trim();
@@ -2056,7 +2646,8 @@ function saveSettings() {
     chatId: document.getElementById('s-chatid').value.trim() || store.settings.chatId,
     clickId: document.getElementById('s-click-id').value.trim(),
     paymeId: document.getElementById('s-payme-id').value.trim(),
-    card: document.getElementById('s-card').value.trim()
+    card: document.getElementById('s-card').value.trim(),
+    webappUrl: document.getElementById('s-webapp-url').value.trim()
   };
   saveStore();
   // Shopni yangilash
@@ -2272,7 +2863,7 @@ function updateCartTotal() {
 // ════════════════════════════════
 //  TO'LOV USULI
 // ════════════════════════════════
-let selectedPayment = 'cash';
+let selectedPayment = 'transfer';
 let selectedNasiyaMonths = 3;
 
 function selectPayment(method) {
@@ -2692,40 +3283,67 @@ function openCustomerChat() {
 // ════════════════════════════════
 //  TELEGRAM BOT XABARNOMA
 // ════════════════════════════════
-async function sendTelegramNotification(order) {
+// ════ UNIVERSAL TELEGRAM SENDER ════
+async function tgSend(chatId, text) {
   const token = store.settings.botToken;
-  const chatId = store.settings.chatId;
-  if(!token || !chatId) return;
-  const zone = store.deliveryZones?.find(z=>z.id===order.deliveryZoneId);
-  const payLabels = {cash:'💵 Naqd',transfer:'🏦 Otkazma',click:'🔵 Click',payme:'🟢 Payme'};
-  const text = `🛍️ *Yangi buyurtma #${order.id}*\n\n👤 Mijoz: ${order.customerName} | 📱 Tel: ${order.phone||'—'}\n📱 Telegram: ${order.tgId}\n\n📦 Mahsulotlar:\n${order.items.map(i=>`• ${i.emoji} ${i.name} x${i.qty} — ${fmtPrice(i.price*i.qty)}`).join('\n')}\n` +
-    (zone ? `🚚 Yetkazish: ${zone.name} — ${fmtPrice(zone.price)}\n` : '') +
-    (order.receiverName ? `👥 Qabul qiluvchi: ${order.receiverName} / ${order.receiverPhone}\n` : '') +
-    (order.address ? `📍 Manzil: ${order.address}\n` : '') +
-    (order.paymentMethod ? `💳 To'lov: ${payLabels[order.paymentMethod]||order.paymentMethod}\n` : '') +
-    (order.nasiyaMonths ? `🟣 Uzum Nasiya: ${order.nasiyaMonths} oy bo'lib to'lash\n` : '') +
-    `\n💰 *Jami: ${fmtPrice(order.total)}*`;
-
+  if(!token || !chatId) { console.log('tgSend: token yoki chatId yoq'); return false; }
   const url = `https://api.telegram.org/bot${token}/sendMessage`;
-  const body = JSON.stringify({chat_id: chatId, text, parse_mode: 'Markdown'});
-
-  // 1. fetch bilan sinab ko'r
   try {
-    await fetch(url, {
+    const r = await fetch(url, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text: text, parse_mode: 'Markdown' })
     });
-    return;
-  } catch(e) {}
+    const data = await r.json();
+    if(!data.ok) {
+      console.log('tgSend xato:', data.description, '| chatId:', chatId);
+      // parse_mode xatolik bolsa oddiy matn
+      const r2 = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, text: text.replace(/[*_`]/g,'') })
+      });
+      const d2 = await r2.json();
+      console.log('tgSend fallback:', d2.ok, d2.description||'');
+      return d2.ok;
+    }
+    return true;
+  } catch(e) {
+    console.log('tgSend catch:', e.message);
+    return false;
+  }
+}
 
-  // 2. XMLHttpRequest bilan sinab ko'r
-  try {
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', url, true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.send(body);
-  } catch(e) { console.log('Bot xatolik:', e); }
+async function sendTelegramNotification(order) {
+  const chatId = store.settings.chatId;
+  const zone = store.deliveryZones?.find(z=>z.id===order.deliveryZoneId);
+  const payLabels = {cash:'Naqd',transfer:'Karta otkazma',click:'Click',payme:'Payme'};
+  const isTransfer = order.paymentMethod === 'transfer';
+
+  const lines = [
+    `*YANGI BUYURTMA #${order.id}*`,
+    ``,
+    `Mijoz: *${order.customerName}*`,
+    `Tel: ${order.phone||'—'}`,
+    `TG: ${order.tgId}`,
+    ``,
+    `Mahsulotlar:`,
+    ...order.items.map(i=>`  ${i.name} x${i.qty} — ${fmtPrice(i.price*i.qty)}`),
+  ];
+  if(zone) lines.push(`Yetkazish: ${zone.name} — ${fmtPrice(zone.price)}`);
+  if(order.address) lines.push(`Manzil: ${order.address}`);
+  if(order.nasiyaMonths) lines.push(`Nasiya: ${order.nasiyaMonths} oy`);
+  lines.push(`Tolov: ${payLabels[order.paymentMethod]||order.paymentMethod||'—'}`);
+  lines.push(``);
+  lines.push(`*Jami: ${fmtPrice(order.total)}*`);
+  if(isTransfer) {
+    lines.push(``);
+    lines.push(`KARTA BERING: Admin panel → Tolovlar bolimi`);
+  }
+
+  const text = lines.join('\n');
+  const ok = await tgSend(chatId, text);
+  console.log('Admin xabar:', ok ? 'yuborildi' : 'yuborilmadi');
 }
 
 // ════════════════════════════════
@@ -2761,6 +3379,18 @@ function showAgeGate() {
     document.getElementById('tg-name').textContent = tgUser.first_name||'—';
   }
 
+  // ?pay=ID — admin karta yuborgandan keyin mijoz qayta ochsa
+  const urlParams = new URLSearchParams(window.location.search);
+  const payId = parseInt(urlParams.get('pay') || tg?.initDataUnsafe?.start_param?.replace('pay','') || '0');
+  if(payId) {
+    setTimeout(() => {
+      const order = store.orders.find(o=>o.id===payId);
+      if(order && ['waiting_card','card_sent'].includes(order.paymentStatus)) {
+        openPaymentScreen(order);
+      }
+    }, 800);
+  }
+
   // Admin tugmasini ko'rsatish:
   // - Telegram da: faqat admin IDga
   // - Brauzerda: har doim (PIN bilan kiradi)
@@ -2783,6 +3413,8 @@ function showAgeGate() {
 
   buildChips();
   renderShopProducts();
+  // To'lovga tayyor badge
+  setTimeout(updateReadyPaymentsBadge, 500);
 })();
 </script>
 </body>
